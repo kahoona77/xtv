@@ -1,4 +1,4 @@
 xtv
 ===
 
-XTV
+XTV the Project
