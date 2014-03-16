@@ -1,0 +1,5 @@
+{
+  "main":"groovy:de.kahoona.xtv.XTV",
+
+  "auto-redeploy": true
+}
