@@ -1,1 +1,4 @@
 <p>This is the partial for view 1.</p>
+<div ng-repeat="server in servers">
+    Server: {{server.name}}, Port: {{server.port}}, Chanles: <span ng-repeat="chanle in server.chanles">{{chanle}}, </span>
+</div>

@@ -18,6 +18,7 @@
 
 package de.kahoona.xtv
 
+import org.vertx.groovy.core.eventbus.Message
 import org.vertx.groovy.core.http.HttpServer
 import org.vertx.groovy.core.http.HttpServerRequest
 import org.vertx.groovy.core.http.RouteMatcher
@@ -49,6 +50,17 @@ class XTV extends Verticle {
       vertx.createSockJSServer(server).bridge(prefix: '/eventbus', [[:]], [[:]])
 
       server.listen(8080)
+
+      container.deployVerticle('groovy:de.kahoona.xtv.TestDataService')
+
+      vertx.eventBus.registerHandler("test.msg") {Message message ->
+          println "got: ${message.body()}"
+          message.reply("pong!")
+          container.logger.info("Sent back pong groovy!")
+
+          vertx.eventBus.publish('test.new', [data: 'Hello', success: true])
+          container.logger.info("Sent back test new!")
+      }
 
       log.info "The http server is started"
   }
