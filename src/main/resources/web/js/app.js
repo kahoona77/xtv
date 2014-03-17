@@ -1,16 +1,27 @@
 'use strict';
 
+angular.module('xtv.controllers', []);
+angular.module('xtv.services', []);
 
 // Declare app level module which depends on filters, and services
 angular.module('xtv', [
   'ngRoute',
+  'ngAnimate',
   'xtv.filters',
   'xtv.services',
   'xtv.directives',
   'xtv.controllers',
   'knalli.angular-vertxbus'
-]).config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view1', {templateUrl: 'web/partials/partial1.html', controller: 'MyCtrl1'});
-  $routeProvider.when('/view2', {templateUrl: 'web/partials/partial2.html', controller: 'MyCtrl2'});
-  $routeProvider.otherwise({redirectTo: '/view1'});
-}]);
+]).config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+
+  $locationProvider.html5Mode(true);
+
+  $routeProvider.when('/home', {templateUrl: 'web/partials/home.html', controller: 'HomeCtrl'});
+  $routeProvider.when('/search', {templateUrl: 'web/partials/search.html', controller: 'SearchCtrl'});
+  $routeProvider.when('/downloads', {templateUrl: 'web/partials/downloads.html', controller: 'DownloadsCtrl'});
+  $routeProvider.otherwise({redirectTo: '/home'});
+}]).run(['$rootScope', function ($rootScope) {
+        $rootScope.showSettingsDialog = function () {
+            $rootScope.$broadcast ('xtv:showSettingsDialog');
+        }
+    }]);

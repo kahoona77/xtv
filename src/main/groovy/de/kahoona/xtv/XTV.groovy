@@ -44,6 +44,10 @@ class XTV extends Verticle {
           req.response.sendFile(req.path.substring(1))
       }
 
+      routeMatcher.noMatch { req ->
+          req.response.sendFile "web/index.html"
+      }
+
       HttpServer server = vertx.createHttpServer()
       server.requestHandler(routeMatcher.asClosure())
 

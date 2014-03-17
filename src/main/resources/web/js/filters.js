@@ -3,8 +3,12 @@
 /* Filters */
 
 angular.module('xtv.filters', []).
-  filter('interpolate', ['version', function(version) {
-    return function(text) {
-      return String(text).replace(/\%VERSION\%/mg, version);
+  filter('megaBytes', [function() {
+    return function(input) {
+
+      if (angular.isNumber (input)) {
+        input = parseInt (input / 1048576);
+      }
+      return input + ' MB';
     }
   }]);

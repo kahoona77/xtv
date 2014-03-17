@@ -11,7 +11,9 @@ class TestDataService extends Verticle {
     def start() {
         vertx.eventBus.registerHandler("testdata.servers") {Message message ->
             def servers = [
-                    [name: 'irc.abjects.net', port: 6667, chanles: ['#mg-chat', '#moviegods']]
+                    [name: 'irc.abjects.net', port: 6667, channels: [[name:'#mg-chat'], [name:'#moviegods']]],
+                    [name: 'irc.criten.net', port: 6667, channels: [[name:'#1warez']]],
+                    [name: 'irc.dejatoons.net', port: 6667, channels: [[name:'#beast-xdcc']]],
             ]
             message.reply([success: true, data: servers])
         }
