@@ -3,20 +3,22 @@
 /* Controllers */
 
 angular.module('xtv.controllers').
-  controller('HomeCtrl', ['$scope', 'vertxEventBusService', function($scope, vertxEventBusService) {
+  controller('HomeCtrl', ['$scope', 'xtvService', 'vertxEventBusService', function($scope, xtvService, vertxEventBusService) {
 
     vertxEventBusService.on('test.new', function(message){
         console.log('got test new: ', message);
     });
 
+    xtvService.send('testdata.servers', {data: 123}, true).then(function(reply){
+      $scope.servers = reply.data;
+    }).catch(function(){
+      console.warn('No message');
+    });
+
     $scope.$on('vertx-eventbus.system.connected', function() {
         console.log('connected');
 
-        vertxEventBusService.send('testdata.servers', {data: 123}, true).then(function(reply){
-            $scope.servers = reply.data;
-        }).catch(function(){
-            console.warn('No message');
-        });
+
 
         vertxEventBusService.send('test.msg', {data: 123}, true).then(function(reply){
             console.log('A reply received: ', reply);
