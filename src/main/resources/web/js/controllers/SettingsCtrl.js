@@ -3,30 +3,41 @@
 /* Controllers */
 
 angular.module('xtv.controllers').
-  controller('SettingsCtrl', ['$scope', 'vertxEventBusService', function($scope, vertxEventBusService) {
+  controller('SettingsCtrl', ['$scope', 'xtvService', function($scope, xtvService) {
 
-        $scope.settings = {
-          nick:        'kahoona',
-          port:        8080,
-          tempDir:     '/temp',
-          downloadDir: '/download'
-        };
+    $scope.loadSettings = function () {
+      xtvService.send('xtv.loadSettings').then(function (response) {
+        if (response.status == 'ok') {
+          $scope.settings = response.result;
 
-        $scope.saveSettings = function () {
-          //TODO save settings
+        } else {
+          msg.error(response.message);
+        }
+      });
+    };
+    $scope.loadSettings();
+
+    $scope.saveSettings = function () {
+      xtvService.send('xtv.saveSettings', {data: $scope.settings}).then(function (response) {
+        if (response.status = 'ok') {
           $scope.hideSettingsDialog();
-        };
+          $scope.loadSettings();
+        } else {
+          msg.error(response.message);
+        }
+      });
+    };
 
-        $scope.$on ('xtv:showSettingsDialog', function (){
-           $scope.showSettingsDialog();
-        });
+    $scope.$on('xtv:showSettingsDialog', function () {
+      $scope.showSettingsDialog();
+    });
 
-        $scope.showSettingsDialog = function () {
-            $('#settingsDialog').modal ('show');
-        };
+    $scope.showSettingsDialog = function () {
+      $('#settingsDialog').modal('show');
+    };
 
-        $scope.hideSettingsDialog = function () {
-            $('#settingsDialog').modal ('hide');
-        };
+    $scope.hideSettingsDialog = function () {
+      $('#settingsDialog').modal('hide');
+    };
 
   }]);

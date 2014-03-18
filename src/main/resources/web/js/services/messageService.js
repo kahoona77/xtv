@@ -15,6 +15,10 @@ angular.module ('xtv.services').factory('msg', [ '$rootScope', '$timeout', funct
             }, timeout);
         },
 
+        error: function (message) {
+          this.show(message, 'error');
+        },
+
         hideMessage: function () {
             if ($rootScope.message.timeout) {
                 $timeout.cancel ($rootScope.message.timeout);

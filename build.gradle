@@ -61,6 +61,8 @@ dependencies {
   provided "org.codehaus.groovy:groovy-all:$groovyVersion"
   provided "io.vertx:lang-groovy:$groovyLangModVersion@jar"
 
+  compile "org.pircbotx:pircbotx:2.0.1"
+
 }
 
 test {

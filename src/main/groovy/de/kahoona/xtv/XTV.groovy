@@ -30,6 +30,7 @@ class XTV extends Verticle {
   def start() {
       def log = container.logger
 
+      // Init server
       RouteMatcher routeMatcher = new RouteMatcher()
 
       routeMatcher.get("/") { req ->
@@ -55,7 +56,17 @@ class XTV extends Verticle {
 
       server.listen(8080)
 
-      container.deployVerticle('groovy:de.kahoona.xtv.TestDataService')
+      // init mongo
+      def mongoConfig = ["db_name": "xtv", "address": "xtv.mongo"]
+      container.deployModule ('io.vertx~mod-mongo-persistor~2.0.0-final', mongoConfig, 1) { result ->
+        result.succeeded ? log.info('App: The Mongo persistor module is deployed.') : result.throwable.printStackTrace()
+
+        createTestData ()
+      }
+
+      //init services
+      container.deployVerticle('groovy:de.kahoona.xtv.DataService')
+      container.deployVerticle('groovy:de.kahoona.xtv.IrcConnector')
 
       vertx.eventBus.registerHandler("test.msg") {Message message ->
           println "got: ${message.body()}"
@@ -67,5 +78,24 @@ class XTV extends Verticle {
       }
 
       log.info "The http server is started"
+  }
+
+  void createTestData () {
+
+    vertx.eventBus.send ('xtv.loadServers', null) {Message message ->
+      if (message.body ().number <= 0) {
+        List servers = [
+          [name: 'irc.abjects.net',   port: 6667, status: 'Connected',     channels: [[name:'#mg-chat', botsCount: 0, packetsCount: 0], [name:'#moviegods', botsCount: 154, packetsCount: 1365]]],
+          [name: 'irc.criten.net',    port: 6667, status: 'Not Connected', channels: [[name:'#1warez', botsCount: 69, packetsCount: 145]]],
+          [name: 'irc.dejatoons.net', port: 6667, status: 'Connected',     channels: [[name:'#beast-xdcc', botsCount: 98, packetsCount: 759]]],
+        ]
+        servers.each {
+          vertx.eventBus.send ('xtv.saveServer', [data: it])
+        }
+      }
+    }
+
+
+
   }
 }

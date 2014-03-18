@@ -3,11 +3,27 @@
 /* Controllers */
 
 angular.module('xtv.controllers').
-  controller('HomeCtrl', ['$scope', 'xtvService', function($scope, xtvService) {
+  controller('HomeCtrl', ['$scope', 'xtvService', 'msg', function($scope, xtvService, msg) {
 
-    xtvService.send('testdata.servers', {data: 123}, true).then(function(reply){
-      $scope.servers = reply.data;
-    });
+    $scope.loadServers = function () {
+      xtvService.send('xtv.loadServers', {data: 123}, true).then(function(response){
+        if (response.status == 'ok') {
+          $scope.servers = response.results;
+
+          //reselect server
+          if ($scope.selectedServer) {
+            angular.forEach ($scope.servers, function (server) {
+               if (server._id == $scope.selectedServer._id) {
+                 $scope.selectedServer = server;
+               }
+            });
+          }
+        } else {
+          msg.error (response.message);
+        }
+      });
+    };
+    $scope.loadServers();
 
     $scope.selectServer = function (server) {
       $scope.selectedServer = server;
@@ -18,14 +34,22 @@ angular.module('xtv.controllers').
     };
 
     $scope.addServer = function () {
-      //TODO add Server
-      $('#addServerDialog').modal('hide');
-      $scope.servers.push ({
-        name: $scope.newServer.uri,
-        port: $scope.newServer.port,
-        channels: []
+      var newServer = {
+          name: $scope.newServer.uri,
+          port: $scope.newServer.port,
+          status: 'Not Connected',
+          channels: []
+      };
+
+      xtvService.send ('xtv.saveServer', {data: newServer}).then (function (response) {
+        if (response.status = 'ok') {
+          $('#addServerDialog').modal('hide');
+          $scope.newServer = undefined;
+          $scope.loadServers();
+        } else {
+          msg.error (response.message);
+        }
       });
-      $scope.newServer = undefined;
     };
 
     $scope.showAddChannelDialog = function () {
@@ -33,12 +57,23 @@ angular.module('xtv.controllers').
     };
 
     $scope.addChannel = function () {
-      //TODO add Server
-      $('#addChannelDialog').modal('hide');
-      $scope.selectedServer.channels.push ({
-        name: $scope.newChannel.name
+      var data = {
+        serverId: $scope.selectedServer._id,
+        channel: {
+          name: $scope.newChannel.name,
+          botsCount: 0,
+          packetsCount: 0
+        }
+      };
+      xtvService.send ('xtv.addChannel', {data: data}).then (function (response) {
+        if (response.status = 'ok') {
+          $('#addChannelDialog').modal('hide');
+          $scope.newChannel = undefined;
+          $scope.loadServers();
+        } else {
+          msg.error (response.message);
+        }
       });
-      $scope.newChannel = undefined;
     };
 
     $scope.showDeleteServerConfirm = function (server) {
@@ -47,11 +82,15 @@ angular.module('xtv.controllers').
     };
 
     $scope.deleteServer = function () {
-      // TODO delete server
-      var index = $scope.servers.indexOf($scope.serverToDelete);
-      $scope.servers.splice(index, 1);
-      $scope.selectedServer = undefined;
-      $scope.serverToDelete = undefined;
+      xtvService.send ('xtv.deleteServer', {data: $scope.serverToDelete}).then (function (response) {
+        if (response.status = 'ok') {
+          $scope.selectedServer = undefined;
+          $scope.serverToDelete = undefined;
+          $scope.loadServers();
+        } else {
+          msg.error (response.message);
+        }
+      });
     };
 
     $scope.showDeleteChannelConfirm = function (channel) {
@@ -60,10 +99,19 @@ angular.module('xtv.controllers').
     };
 
     $scope.deleteChannel = function () {
-      // TODO delete channel
-      var index = $scope.selectedServer.channels.indexOf($scope.channelToDelete);
-      $scope.selectedServer.channels.splice(index, 1);
-      $scope.channelToDelete = undefined;
+      var data = {
+        serverId: $scope.selectedServer._id,
+        channelId: $scope.channelToDelete._id
+      };
+
+      xtvService.send ('xtv.deleteChannel', {data: data}).then (function (response) {
+        if (response.status = 'ok') {
+          $scope.channelToDelete = undefined;
+          $scope.loadServers();
+        } else {
+          msg.error (response.message);
+        }
+      });
     };
 
     $scope.getStatusClass = function (server) {
