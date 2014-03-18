@@ -1,11 +1,35 @@
 angular.module ('xtv.services').factory('xtvService', [ '$rootScope', '$q', '$timeout', 'vertxEventBusService', function($rootScope, $q, $timeout, vertxEventBusService) {
 
   var connected = false;
+  var queue = [];
+
+  var addToQueue = function  (deferred, address, data) {
+    queue.push({
+      deferred: deferred,
+      address:  address,
+      data:     data
+    });
+  };
+
+  var resolveQueue = function () {
+    angular.forEach (queue, function (item) {
+       var deferred = item.deferred;
+       deferred.resolve(vertxEventBusService.send(item.address, item.data, true));
+    });
+    queue = [];
+  };
 
   $rootScope.$on('vertx-eventbus.system.connected', function() {
     console.log('eventbus connected');
     connected = true;
+    resolveQueue();
   });
+
+  $rootScope.$on('vertx-eventbus.system.disconnected', function() {
+    console.log('eventbus disconnected');
+    connected = false;
+  });
+
 
   return {
         send: function (address, data) {
@@ -13,11 +37,13 @@ angular.module ('xtv.services').factory('xtvService', [ '$rootScope', '$q', '$ti
             return vertxEventBusService.send(address, data, true);
           } else {
             var deferred = $q.defer ();
-            $timeout(function() {
-              deferred.resolve(vertxEventBusService.send(address, data, true));
-            }, 2000);
+            addToQueue(deferred, address, data);
             return deferred.promise;
           }
+        },
+
+        on: function (address, callback) {
+          vertxEventBusService.on(address, callback);
         }
     }
 }]);

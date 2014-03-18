@@ -31,34 +31,13 @@
             <div class="col-sm-12  list-group">
                 <a href="#" ng-repeat="server in servers" class="list-group-item" ng-class="{active: server==selectedServer}" ng-click="selectServer(server)">
                     <strong>{{server.name}}</strong>:{{server.port}}
-                    <span title="delete Server" class="glyphicon glyphicon-trash pull-right" ng-click="showDeleteServerConfirm (server)"></span>
+                    <span title="delete Server" class="glyphicon glyphicon-trash pull-right xtv-server-icon" ng-click="showDeleteServerConfirm (server)"></span>
+                    <span title="{{server.status}}" class="glyphicon pull-right xtv-server-icon" ng-class="getStatusClass(server)" ng-click="toggleConnection (server)"></span>
                 </a>
             </div>
         </div>
     </div>
     <div class="col-sm-7" ng-show="selectedServer">
-        <div class="row">
-            <div class="col-sm-12">
-                <strong>Statistics ({{selectedServer.name}}):</strong>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12 list-group">
-                <a href="#" class="list-group-item" style="height: 42px;">
-                    <div class="col-sm-2"><strong>Staus:</strong></div>
-                    <div class="col-sm-10">Connected</div>
-                </a>
-                <a href="#" class="list-group-item" style="height: 42px;">
-                    <div class="col-sm-2"><strong>Bots:</strong></div>
-                    <div class="col-sm-10">125</div>
-                </a>
-                <a href="#" class="list-group-item" style="height: 42px;">
-                    <div class="col-sm-2"><strong>Packets:</strong></div>
-                    <div class="col-sm-10">1058</div>
-                </a>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-sm-12">
                 <strong>Channels ({{selectedServer.name}}):</strong>
@@ -72,6 +51,8 @@
                 <a href="#" ng-repeat="channel in selectedServer.channels" class="list-group-item" ng-class="{active: channel==selectedChannel}" ng-click="selectChannel(channel)">
                     {{channel.name}}
                     <span title="delete Channel" class="glyphicon glyphicon-trash pull-right" ng-click="showDeleteChannelConfirm (channel)"></span>
+                    <span class="col-sm-3 pull-right"><strong>Packets:</strong> {{channel.packetsCount}}</span>
+                    <span class="col-sm-2 pull-right"><strong>Bots:</strong> {{channel.botsCount}}</span>
                 </a>
             </div>
         </div>

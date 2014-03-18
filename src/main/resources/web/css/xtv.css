@@ -14,6 +14,11 @@ a {
   text-align: center;
 }
 
+.xtv-server-icon {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
 .xtv-search-filed {
   margin-top: 20px;
   margin-bottom: 20px;

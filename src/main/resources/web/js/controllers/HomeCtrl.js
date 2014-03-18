@@ -3,28 +3,10 @@
 /* Controllers */
 
 angular.module('xtv.controllers').
-  controller('HomeCtrl', ['$scope', 'xtvService', 'vertxEventBusService', function($scope, xtvService, vertxEventBusService) {
-
-    vertxEventBusService.on('test.new', function(message){
-        console.log('got test new: ', message);
-    });
+  controller('HomeCtrl', ['$scope', 'xtvService', function($scope, xtvService) {
 
     xtvService.send('testdata.servers', {data: 123}, true).then(function(reply){
       $scope.servers = reply.data;
-    }).catch(function(){
-      console.warn('No message');
-    });
-
-    $scope.$on('vertx-eventbus.system.connected', function() {
-        console.log('connected');
-
-
-
-        vertxEventBusService.send('test.msg', {data: 123}, true).then(function(reply){
-            console.log('A reply received: ', reply);
-        }).catch(function(){
-            console.warn('No message');
-        });
     });
 
     $scope.selectServer = function (server) {
@@ -83,4 +65,30 @@ angular.module('xtv.controllers').
       $scope.selectedServer.channels.splice(index, 1);
       $scope.channelToDelete = undefined;
     };
+
+    $scope.getStatusClass = function (server) {
+      if (server.status == 'Connected') {
+         return 'glyphicon-globe';
+      }
+      return 'glyphicon-ban-circle';
+    };
+
+    $scope.toggleConnection = function (server) {
+      //TODO toggle connection
+      if (server.status == 'Connected'){
+        server.status = 'Not Connected';
+      } else {
+        server.status = 'Connected';
+      }
+    };
+
+    //TODO remove test-stuff
+    xtvService.on('test.new', function(message){
+      console.log('got test new (xtv): ', message);
+    });
+
+    xtvService.send('test.msg', {data: 123}).then(function(reply){
+      console.log('A reply received: ', reply);
+    });
+
   }]);
