@@ -9,7 +9,7 @@ import org.vertx.groovy.platform.Verticle
 class IrcConnector extends Verticle {
 
   def start () {
-    IrcBot bot = new IrcBot('kahhonaPirc', 'irc.abjects.net', ['#mg-chat', '#moviegods'])
+    IrcBot bot = new IrcBot(vertx, 'kahhonaPirc', 'irc.abjects.net', ['#mg-chat', '#moviegods'])
     bot.connect ()
 
     println "IrcConnector started."

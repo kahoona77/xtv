@@ -14,6 +14,7 @@ import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.events.NoticeEvent
 import org.pircbotx.hooks.events.UserListEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
+import org.vertx.groovy.core.Vertx
 
 /**
  * Created by benjamin.ernst on 18.03.14.
@@ -24,7 +25,11 @@ class IrcBot extends ListenerAdapter{
   String server
   List<String> channels
 
-  public IrcBot (name, server, List<String> channels) {
+  private Vertx    vertx
+  private PircBotX bot
+
+  public IrcBot (Vertx vertx, name, server, List<String> channels) {
+    this.vertx = vertx
     this.name = name
     this.server = server
     this.channels = channels
@@ -44,17 +49,16 @@ class IrcBot extends ListenerAdapter{
     }
 
     Configuration configuration = builder.buildConfiguration ()
-    PircBotX bot = new PircBotX (configuration)
+    this.bot = new PircBotX (configuration)
     bot.startBot ()
   }
 
 
   @Override
   public void onMessage(final MessageEvent event) throws Exception {
-
-    Packet packet = PacketParser.getPacket (event.user.nick, event.message)
+    Packet packet = PacketParser.getPacket (event.channel.name, event.user.nick, event.message)
     if (packet) {
-      println "[got packet] bot: ${packet.bot}; id:${packet.id}; name: ${packet.name}; size:${packet.size}"
+      vertx.eventBus.send ('xtv.savePacket', [data: packet])
     }
 
   }

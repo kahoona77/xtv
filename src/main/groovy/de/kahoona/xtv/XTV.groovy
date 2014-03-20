@@ -54,19 +54,23 @@ class XTV extends Verticle {
 
       vertx.createSockJSServer(server).bridge(prefix: '/eventbus', [[:]], [[:]])
 
-      server.listen(8080)
+      server.listen(8090)
 
       // init mongo
       def mongoConfig = ["db_name": "xtv", "address": "xtv.mongo"]
       container.deployModule ('io.vertx~mod-mongo-persistor~2.0.0-final', mongoConfig, 1) { result ->
         result.succeeded ? log.info('App: The Mongo persistor module is deployed.') : result.throwable.printStackTrace()
 
-        createTestData ()
-      }
+        //init services
+        container.deployVerticle('groovy:de.kahoona.xtv.DataService')
+        container.deployVerticle('groovy:de.kahoona.xtv.PacketService')
+        container.deployVerticle('groovy:de.kahoona.xtv.IrcConnector')
 
-      //init services
-      container.deployVerticle('groovy:de.kahoona.xtv.DataService')
-      container.deployVerticle('groovy:de.kahoona.xtv.IrcConnector')
+        createTestData ()
+
+        vertx.eventBus.publish ('xtv.started', true)
+        log.info "XTV is started"
+      }
 
       vertx.eventBus.registerHandler("test.msg") {Message message ->
           println "got: ${message.body()}"
@@ -77,7 +81,7 @@ class XTV extends Verticle {
           container.logger.info("Sent back test new!")
       }
 
-      log.info "The http server is started"
+
   }
 
   void createTestData () {
