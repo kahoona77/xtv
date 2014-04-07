@@ -59,8 +59,14 @@ angular.module('xtv.controllers').
     $scope.countPackets();
 
     $scope.startDownload = function (item) {
-      //TODO start download
-      msg.show ("Added '" + item.file + "' to Download-Queue.");
+      xtvService.send('xtv.downloadPacket', {data: item}).then(function(response){
+        if (response.status == 'ok') {
+          msg.show ("Added '" + item.file + "' to Download-Queue.");
+        } else {
+          msg.error (response.message);
+        }
+      });
+
     };
 
   }]);

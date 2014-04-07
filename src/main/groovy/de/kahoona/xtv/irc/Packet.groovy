@@ -1,5 +1,7 @@
 package de.kahoona.xtv.irc
 
+import org.apache.commons.lang3.StringUtils
+
 /**
  * Created by benjamin.ernst on 18.03.14.
  */
@@ -22,5 +24,13 @@ class Packet {
      'size':     size,
      'date':     date,
     ]
+  }
+
+  String getMessage () {
+    return "/msg ${bot} xdcc send ${getCleanPacketId()}"
+  }
+
+  String getCleanPacketId () {
+    return StringUtils.replace (packetId, '#','')
   }
 }

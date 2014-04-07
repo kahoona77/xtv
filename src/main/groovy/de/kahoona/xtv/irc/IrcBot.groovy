@@ -1,5 +1,6 @@
 package de.kahoona.xtv.irc
 
+import org.pircbotx.Channel
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.User
@@ -9,12 +10,16 @@ import org.pircbotx.dcc.ReceiveChat
 import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.events.ChannelInfoEvent
 import org.pircbotx.hooks.events.IncomingChatRequestEvent
+import org.pircbotx.hooks.events.IncomingFileTransferEvent
 import org.pircbotx.hooks.events.JoinEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.events.NoticeEvent
 import org.pircbotx.hooks.events.UserListEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
+import org.pircbotx.output.OutputChannel
 import org.vertx.groovy.core.Vertx
+
+import javax.swing.text.html.ObjectView
 
 /**
  * Created by benjamin.ernst on 18.03.14.
@@ -24,6 +29,7 @@ class IrcBot extends ListenerAdapter{
   String name
   String server
   List<String> channels
+  Map<String, Channel> joinedChannels = [:]
 
   private Vertx    vertx
   private PircBotX bot
@@ -48,9 +54,13 @@ class IrcBot extends ListenerAdapter{
       builder.addAutoJoinChannel (it)
     }
 
+    builder.setBotFactory (new BotFactory())
+
     Configuration configuration = builder.buildConfiguration ()
     this.bot = new PircBotX (configuration)
-    bot.startBot ()
+    Thread.start{
+      bot.startBot ()
+    }
   }
 
 
@@ -58,7 +68,10 @@ class IrcBot extends ListenerAdapter{
   public void onMessage(final MessageEvent event) throws Exception {
     Packet packet = PacketParser.getPacket (event.channel.name, event.user.nick, event.message)
     if (packet) {
+      joinedChannels.put (packet.channel, event.channel)
       vertx.eventBus.send ('xtv.savePacket', [data: packet])
+    } else {
+      println ("xtv: ${event.message}")
     }
 
   }
@@ -69,14 +82,16 @@ class IrcBot extends ListenerAdapter{
     println ("irc: $event.message")
   }
 
-//  @Override
-//  public void onUserList(UserListEvent event) throws Exception {
-//    println ("onUserList: $event")
-//    event.users.each {User user ->
-//      println "user: $user"
-//    }
-//  }
+  @Override
+  public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
+    File file = new File ('/temp/xtv/' + event.getSafeFilename ())
+    event.accept (file)
+  }
 
 
-
+  void download (Packet packet) {
+    Channel channel = joinedChannels[packet.channel]
+    OutputChannel out = channel.send ()
+    out.message (packet.getMessage ())
+  }
 }
