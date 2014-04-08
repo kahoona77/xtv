@@ -27,7 +27,7 @@ class Packet {
   }
 
   String getMessage () {
-    return "/msg ${bot} xdcc send ${getCleanPacketId()}"
+    return "xdcc send ${getCleanPacketId()}"
   }
 
   String getCleanPacketId () {

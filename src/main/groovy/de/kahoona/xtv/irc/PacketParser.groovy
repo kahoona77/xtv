@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils
  */
 class PacketParser {
 
-  private static def myRegularExpression = /(#[0-9]+).*\[\s*([0-9]+[BbGgiKMs]+)\]\s+(.+).*/
+  private static def myRegularExpression = /(#[0-9]+).*\[\s*([0-9|\.]+[BbGgiKMs]+)\]\s+(.+).*/
 
   public static Packet getPacket (String channel, String bot, String message) {
 

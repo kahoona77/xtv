@@ -64,6 +64,7 @@ class XTV extends Verticle {
         //init services
         container.deployVerticle('groovy:de.kahoona.xtv.DataService')
         container.deployVerticle('groovy:de.kahoona.xtv.PacketService')
+        container.deployVerticle('groovy:de.kahoona.xtv.DownloadService')
         container.deployVerticle('groovy:de.kahoona.xtv.IrcConnector')
 
         createTestData ()

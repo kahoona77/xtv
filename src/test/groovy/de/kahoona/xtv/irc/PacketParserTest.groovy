@@ -23,5 +23,13 @@ class PacketParserTest extends GroovyTestCase {
     assertEquals ('Cliff.Richard-Still.Reelin.And.A.Rockin.Live.At.Sydney.Opera.House.2013.BluRay.DTS-HD.x264-LEGi0N.tar', packet.name)
     assertEquals ('test', packet.bot)
     assertEquals ('mg', packet.channel)
+
+    packet = packetParser.getPacket ('mg', 'test', '#88 \u0002   2x [2.0G] WWE.Hell.In.A.Cell.2012.BDRip.x264-FiCO.mkv')
+    assertNotNull (packet)
+    assertEquals ('#88', packet.packetId)
+    assertEquals ('2.0G', packet.size)
+    assertEquals ('WWE.Hell.In.A.Cell.2012.BDRip.x264-FiCO.mkv', packet.name)
+    assertEquals ('test', packet.bot)
+    assertEquals ('mg', packet.channel)
   }
 }

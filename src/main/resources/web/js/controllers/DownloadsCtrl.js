@@ -3,9 +3,20 @@
 /* Controllers */
 
 angular.module('xtv.controllers').
-  controller('DownloadsCtrl', ['$scope', 'vertxEventBusService', function($scope, vertxEventBusService) {
+  controller('DownloadsCtrl', ['$scope', 'xtvService', function($scope, xtvService) {
 
     $scope.downloads = [];
+
+    $scope.loadDownloads = function () {
+        xtvService.send('xtv.downloads').then(function(response){
+            if (response.status == 'ok') {
+                $scope.downloads = response.results;
+            } else {
+                msg.error (response.message);
+            }
+        });
+    };
+    $scope.loadDownloads();
 
     $scope.selectItem = function (item) {
       $scope.selectedItem = item;
@@ -45,44 +56,44 @@ angular.module('xtv.controllers').
     };
 
 
-    $scope.downloads.push ({
-      pos:       1,
-      status:    'RUNNING',
-      file:      'Justified.S05E08.720p.mkv',
-      loaded:    479199232,
-      size:      1390411776,
-      speed:     489,
-      remaining: 23
-    });
-
-    $scope.downloads.push ({
-      pos:       2,
-      status:    'FAILED',
-      file:      'Shameless.S04E05.720p.mkv',
-      loaded:    289199232,
-      size:      1158676480,
-      speed:     156,
-      remaining: 52
-    });
-
-    $scope.downloads.push ({
-      pos:       3,
-      status:    'RUNNING',
-      file:      'Community.S04E05.HDTV.avi',
-      loaded:    186646528,
-      size:      193986560,
-      speed:     347,
-      remaining: 3
-    });
-
-    $scope.downloads.push ({
-      pos:       4,
-      status:    'COMPLETE',
-      file:      'Community.S04E04.HDTV.avi',
-      loaded:    193986560,
-      size:      193986560,
-      speed:     62,
-      remaining: 0
-    });
+//    $scope.downloads.push ({
+//      pos:       1,
+//      status:    'RUNNING',
+//      file:      'Justified.S05E08.720p.mkv',
+//      loaded:    479199232,
+//      size:      1390411776,
+//      speed:     489,
+//      remaining: 23
+//    });
+//
+//    $scope.downloads.push ({
+//      pos:       2,
+//      status:    'FAILED',
+//      file:      'Shameless.S04E05.720p.mkv',
+//      loaded:    289199232,
+//      size:      1158676480,
+//      speed:     156,
+//      remaining: 52
+//    });
+//
+//    $scope.downloads.push ({
+//      pos:       3,
+//      status:    'RUNNING',
+//      file:      'Community.S04E05.HDTV.avi',
+//      loaded:    186646528,
+//      size:      193986560,
+//      speed:     347,
+//      remaining: 3
+//    });
+//
+//    $scope.downloads.push ({
+//      pos:       4,
+//      status:    'COMPLETE',
+//      file:      'Community.S04E04.HDTV.avi',
+//      loaded:    193986560,
+//      size:      193986560,
+//      speed:     62,
+//      remaining: 0
+//    });
 
   }]);

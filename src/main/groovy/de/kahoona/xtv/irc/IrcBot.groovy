@@ -7,6 +7,7 @@ import org.pircbotx.User
 import org.pircbotx.UtilSSLSocketFactory
 import org.pircbotx.cap.TLSCapHandler
 import org.pircbotx.dcc.ReceiveChat
+import org.pircbotx.dcc.ReceiveFileTransfer
 import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.events.ChannelInfoEvent
 import org.pircbotx.hooks.events.IncomingChatRequestEvent
@@ -18,6 +19,7 @@ import org.pircbotx.hooks.events.UserListEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
 import org.pircbotx.output.OutputChannel
 import org.vertx.groovy.core.Vertx
+import org.vertx.groovy.core.eventbus.Message
 
 import javax.swing.text.html.ObjectView
 
@@ -71,7 +73,7 @@ class IrcBot extends ListenerAdapter{
       joinedChannels.put (packet.channel, event.channel)
       vertx.eventBus.send ('xtv.savePacket', [data: packet])
     } else {
-      println ("xtv: ${event.message}")
+//      println ("xtv: ${event.message}")
     }
 
   }
@@ -82,16 +84,36 @@ class IrcBot extends ListenerAdapter{
     println ("irc: $event.message")
   }
 
+
+
   @Override
   public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
-    File file = new File ('/temp/xtv/' + event.getSafeFilename ())
-    event.accept (file)
+    println "receiving file: ${event.getSafeFilename ()}"
+    File file = new File ('c:/Temp/xtv/' + event.getSafeFilename ())
+    if (!file.exists()) {
+      file.createNewFile()
+    }
+
+
+    def download = [
+        pos:       1,
+        status:    'RUNNING',
+        file:      event.getSafeFilename (),
+        loaded:    0,
+        size:      event.filesize,
+        speed:     0,
+        remaining: 0]
+    vertx.eventBus.send ('xtv.saveDownload', [data: download]) { Message result ->
+      XTVReceiveFileTransfer transfer = event.accept (file) as XTVReceiveFileTransfer
+      transfer.vertx = vertx
+      transfer.downloadId = result.body ()._id
+
+      transfer.transfer()
+    }
   }
 
 
   void download (Packet packet) {
-    Channel channel = joinedChannels[packet.channel]
-    OutputChannel out = channel.send ()
-    out.message (packet.getMessage ())
+    bot.sendIRC().message(packet.bot, packet.message)
   }
 }

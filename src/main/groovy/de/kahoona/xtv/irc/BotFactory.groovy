@@ -12,10 +12,6 @@ class BotFactory extends Configuration.BotFactory {
 
   @Override
   public ReceiveFileTransfer createReceiveFileTransfer (PircBotX bot, Socket socket, User user, File file, long startPosition) {
-    return new ReceiveFileTransfer (bot.getConfiguration (), socket, user, file, startPosition) {
-      protected void onAfterSend () {
-        println "on after send"
-      }
-    };
+    return new XTVReceiveFileTransfer (bot.getConfiguration (), socket, user, file, startPosition);
   }
 }

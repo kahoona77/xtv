@@ -15,7 +15,7 @@ class PacketService extends Verticle {
 
     //find all packets
     vertx.eventBus.registerHandler ("xtv.findAllPackets") { Message message ->
-      vertx.eventBus.send ('xtv.mongo', [action: 'find', collection: 'servers', matcher: [:]]) { Message result ->
+      vertx.eventBus.send ('xtv.mongo', [action: 'find', collection: 'packets', matcher: [:]]) { Message result ->
         message.reply (result.body ())
       }
     }
