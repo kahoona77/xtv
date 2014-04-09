@@ -12,12 +12,14 @@ class Download {
   String bot
   Long   bytesReceived
   Long   size
-  Long   speed
+  double speed
   Long   remaining
 
   static def fromPacket (def packet) {
     return new Download (_id: packet.name, status: 'WAITING', file: packet.name, packetId: packet.packetId, bot: packet.bot)
   }
+
+
 
   String getSendMessage () {
     return "xdcc send ${getCleanPacketId()}"
@@ -44,5 +46,19 @@ class Download {
       'speed'         : speed         ,
       'remaining'     : remaining     ,
     ]
+  }
+
+  static Download fromJsonMap(Map data) {
+    return new Download ([
+        '_id'           : data._id           ,
+        'status'        : data.status        ,
+        'file'          : data.file          ,
+        'packetId'      : data.packetId      ,
+        'bot'           : data.bot           ,
+        'bytesReceived' : data.bytesReceived ,
+        'size'          : data.size          ,
+        'speed'         : data.speed         ,
+        'remaining'     : data.remaining     ,
+    ])
   }
 }

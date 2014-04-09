@@ -36,6 +36,15 @@ class DownloadService extends Verticle {
       }
     }
 
+    // delete download
+    vertx.eventBus.registerHandler ("xtv.deleteDownload") { Message message ->
+      def download = message.body ().data
+      vertx.eventBus.send ('xtv.mongo', [action: 'delete', collection: 'downloads', matcher: ['_id': download._id]]) { Message result ->
+        message.reply (result.body ())
+      }
+    }
+
+    // start download
     vertx.eventBus.registerHandler ("xtv.downloadPacket") { Message message ->
       def packet = message.body ().data
       Download download
@@ -55,6 +64,14 @@ class DownloadService extends Verticle {
           message.reply (saveResult.body ())
         }
       }
+    }
+
+    // resume download
+    vertx.eventBus.registerHandler ("xtv.resumeDownload") { Message message ->
+      def data = message.body ().data
+      Download download = Download.fromJsonMap(data)
+      vertx.eventBus.send ('xtv.startDownload', [data: download.toMap()])
+      message.reply ([status: 'ok'])
     }
 
   }

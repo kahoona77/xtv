@@ -89,13 +89,29 @@ class IrcBot extends ListenerAdapter{
   public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
     println "receiving file: ${event.getSafeFilename ()}"
     File file = new File ('c:/Temp/xtv/' + event.getSafeFilename ())
+
+    boolean resume = false
+    long startPosition = 0
     if (!file.exists()) {
+      // new Download
       file.createNewFile()
+    } else {
+      // resume download
+      resume = true
+      startPosition = file.length()
     }
 
     vertx.eventBus.send ('xtv.findDownloadById', [id: event.getSafeFilename ()]) { Message result ->
       Download download = result.body().result
-      XTVReceiveFileTransfer transfer = event.accept (file) as XTVReceiveFileTransfer
+      download.size = event.filesize
+
+      XTVReceiveFileTransfer transfer
+      if (!resume) {
+        transfer = event.accept (file) as XTVReceiveFileTransfer
+      } else {
+        transfer = event.acceptResume (file, startPosition) as XTVReceiveFileTransfer
+      }
+
       transfer.vertx = vertx
       transfer.download = download
 

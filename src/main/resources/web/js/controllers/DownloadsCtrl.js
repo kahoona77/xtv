@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('xtv.controllers').
-  controller('DownloadsCtrl', ['$scope', 'xtvService', function($scope, xtvService) {
+  controller('DownloadsCtrl', ['$scope', '$timeout', 'xtvService', function($scope, $timeout, xtvService) {
 
     $scope.downloads = [];
 
@@ -18,16 +18,38 @@ angular.module('xtv.controllers').
     };
     $scope.loadDownloads();
 
+    $scope.startReloadTimer = function () {
+      $timeout (function () {
+          $scope.loadDownloads();
+          $scope.startReloadTimer();
+      }, 3000)
+    };
+    $scope.startReloadTimer();
+
     $scope.selectItem = function (item) {
       $scope.selectedItem = item;
     };
 
     $scope.stop = function () {
-      // TODO stop download
+        xtvService.send('xtv.stopDownload', {data: $scope.selectedItem}).then(function(response){
+            if (response.status == 'ok') {
+                $scope.selectedItem = undefined;
+                $scope.loadDownloads();
+            } else {
+                msg.error (response.message);
+            }
+        });
     };
 
     $scope.resume = function () {
-      // TODO resume download
+        xtvService.send('xtv.resumeDownload', {data: $scope.selectedItem}).then(function(response){
+            if (response.status == 'ok') {
+                $scope.selectedItem = undefined;
+                $scope.loadDownloads();
+            } else {
+                msg.error (response.message);
+            }
+        });
     };
 
     $scope.showCancelConfirm = function () {
@@ -35,9 +57,14 @@ angular.module('xtv.controllers').
     };
 
     $scope.cancel = function () {
-      // TODO cancel download
-      var index = $scope.downloads.indexOf($scope.selectedItem);
-      $scope.downloads.splice(index, 1);
+        xtvService.send('xtv.deleteDownload', {data: $scope.selectedItem}).then(function(response){
+            if (response.status == 'ok') {
+                $scope.selectedItem = undefined;
+                $scope.loadDownloads();
+            } else {
+                msg.error (response.message);
+            }
+        });
     };
 
     $scope.clear = function () {
@@ -50,8 +77,14 @@ angular.module('xtv.controllers').
       });
 
       angular.forEach (completed, function (item) {
-        var index = $scope.downloads.indexOf(item);
-        $scope.downloads.splice(index, 1);
+          xtvService.send('xtv.deleteDownload', {data: item}).then(function(response){
+              if (response.status == 'ok') {
+                  $scope.selectedItem = undefined;
+                  $scope.loadDownloads();
+              } else {
+                  msg.error (response.message);
+              }
+          });
       });
     };
 

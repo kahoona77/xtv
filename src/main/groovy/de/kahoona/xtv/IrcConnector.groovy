@@ -13,11 +13,20 @@ class IrcConnector extends Verticle {
   def start () {
 
     IrcBot bot = new IrcBot(vertx, 'kahhonaPirc', 'irc.abjects.net', ['#mg-chat', '#moviegods'])
-//    bot.connect ()
+    bot.connect ()
 
     vertx.eventBus.registerHandler ("xtv.startDownload") { Message message ->
       Download download = message.body ().data
       bot.startDownload (download)
+      message.reply ([status: 'ok'])
+    }
+
+    vertx.eventBus.registerHandler ("xtv.stopDownload") { Message message ->
+      def data = message.body ().data
+      Download download = Download.fromJsonMap (data)
+      bot.stopDownload (download)
+
+
       message.reply ([status: 'ok'])
     }
 
