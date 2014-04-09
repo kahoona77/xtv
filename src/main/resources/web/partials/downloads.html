@@ -36,13 +36,13 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="item in downloads" ng-click="selectItem(item)" class="pointer" ng-class="{active: item==selectedItem}">
-                <td>{{item.pos}}</td>
+            <tr ng-repeat="item in downloads  | orderBy: 'file'" ng-click="selectItem(item)" class="pointer" ng-class="{active: item==selectedItem}">
+                <td>{{$index + 1}}</td>
                 <td>
                     <div><strong>{{item.file}}</strong></div>
                     <download-progress ng-model="item"></download-progress>
                 </td>
-                <td>{{item.loaded | megaBytes}} / {{item.size | megaBytes}}</td>
+                <td>{{item.bytesReceived | megaBytes}} / {{item.size | megaBytes}}</td>
                 <td>{{item.speed}} Kb/s</td>
                 <td>{{item.remaining}} Minutes</td>
             </tr>

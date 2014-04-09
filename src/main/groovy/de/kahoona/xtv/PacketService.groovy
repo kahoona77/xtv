@@ -30,7 +30,7 @@ class PacketService extends Verticle {
     //find packets
     vertx.eventBus.registerHandler ("xtv.findPackets") { Message message ->
       String query = createRegexQuery (message.body ().query)
-      vertx.eventBus.send ('xtv.mongo', [action: 'find', collection: 'packets', matcher: [name: ['$regex': query, '$options': 'i' ]]]) { Message result ->
+      vertx.eventBus.send ('xtv.mongo', [action: 'find', collection: 'packets', limit: 50, matcher: [name: ['$regex': query, '$options': 'i' ]]]) { Message result ->
         message.reply (result.body ())
       }
     }

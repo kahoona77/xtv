@@ -61,7 +61,7 @@ angular.module('xtv.controllers').
     $scope.startDownload = function (item) {
       xtvService.send('xtv.downloadPacket', {data: item}).then(function(response){
         if (response.status == 'ok') {
-          msg.show ("Added '" + item.file + "' to Download-Queue.");
+          msg.show ("Added '" + item.name + "' to Download-Queue.");
         } else {
           msg.error (response.message);
         }

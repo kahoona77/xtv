@@ -1,5 +1,6 @@
 package de.kahoona.xtv.irc
 
+import de.kahoona.xtv.Download
 import org.pircbotx.Channel
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
@@ -31,7 +32,6 @@ class IrcBot extends ListenerAdapter{
   String name
   String server
   List<String> channels
-  Map<String, Channel> joinedChannels = [:]
 
   private Vertx    vertx
   private PircBotX bot
@@ -70,7 +70,6 @@ class IrcBot extends ListenerAdapter{
   public void onMessage(final MessageEvent event) throws Exception {
     Packet packet = PacketParser.getPacket (event.channel.name, event.user.nick, event.message)
     if (packet) {
-      joinedChannels.put (packet.channel, event.channel)
       vertx.eventBus.send ('xtv.savePacket', [data: packet])
     } else {
 //      println ("xtv: ${event.message}")
@@ -94,26 +93,22 @@ class IrcBot extends ListenerAdapter{
       file.createNewFile()
     }
 
-
-    def download = [
-        pos:       1,
-        status:    'RUNNING',
-        file:      event.getSafeFilename (),
-        loaded:    0,
-        size:      event.filesize,
-        speed:     0,
-        remaining: 0]
-    vertx.eventBus.send ('xtv.saveDownload', [data: download]) { Message result ->
+    vertx.eventBus.send ('xtv.findDownloadById', [id: event.getSafeFilename ()]) { Message result ->
+      Download download = result.body().result
       XTVReceiveFileTransfer transfer = event.accept (file) as XTVReceiveFileTransfer
       transfer.vertx = vertx
-      transfer.downloadId = result.body ()._id
+      transfer.download = download
 
       transfer.transfer()
     }
   }
 
 
-  void download (Packet packet) {
-    bot.sendIRC().message(packet.bot, packet.message)
+  void startDownload (Download download) {
+    bot.sendIRC().message(download.bot, download.sendMessage)
+  }
+
+  void stopDownload (Download download) {
+    bot.sendIRC().message(download.bot, download.cancelMessage)
   }
 }

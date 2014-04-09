@@ -63,6 +63,8 @@ dependencies {
 
   compile "org.pircbotx:pircbotx:2.1-SNAPSHOT"
 
+  compile "org.projectlombok:lombok:1.12.6"
+
 }
 
 test {

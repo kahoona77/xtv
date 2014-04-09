@@ -14,8 +14,16 @@ class DownloadService extends Verticle {
 
 
     //find all downloads
-    vertx.eventBus.registerHandler ("xtv.downloads") { Message message ->
+    vertx.eventBus.registerHandler ("xtv.listDownloads") { Message message ->
       vertx.eventBus.send ('xtv.mongo', [action: 'find', collection: 'downloads', matcher: [:]]) { Message result ->
+        message.reply (result.body ())
+      }
+    }
+
+    //find by id
+    vertx.eventBus.registerHandler ("xtv.findDownloadById") { Message message ->
+      def id = message.body ().id
+      vertx.eventBus.send ('xtv.mongo', [action: 'findone', collection: 'downloads', matcher: ['_id': id]]) { Message result ->
         message.reply (result.body ())
       }
     }
@@ -28,15 +36,26 @@ class DownloadService extends Verticle {
       }
     }
 
-    // update download
-    vertx.eventBus.registerHandler ("xtv.updateDownload") { Message message ->
-      def id = message.body ().id
-      def bytesTransfered = message.body ().bytesTransfered
-      vertx.eventBus.send ('xtv.mongo', [action: 'findone', collection: 'downloads', matcher: ['_id': id]]) { Message result ->
-        def download = result.body().result
-        download.loaded = bytesTransfered
-        vertx.eventBus.send ('xtv.mongo', [action: 'save', collection: 'downloads', document: download])
+    vertx.eventBus.registerHandler ("xtv.downloadPacket") { Message message ->
+      def packet = message.body ().data
+      Download download
+
+      //find or create new download
+      vertx.eventBus.send ('xtv.findDownloadById', [id: packet.name]) { Message result ->
+        if (result.body ().status == 'ok' && result.body().result) {
+          download = result.body().result
+        }  else {
+          download = Download.fromPacket (packet)
+        }
+
+        // save download
+        vertx.eventBus.send ('xtv.saveDownload', [data: download.toMap()]) { Message saveResult ->
+          // start download
+          vertx.eventBus.send ('xtv.startDownload', [data: download.toMap()])
+          message.reply (saveResult.body ())
+        }
       }
     }
+
   }
 }

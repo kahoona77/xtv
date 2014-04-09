@@ -25,12 +25,4 @@ class Packet {
      'date':     date,
     ]
   }
-
-  String getMessage () {
-    return "xdcc send ${getCleanPacketId()}"
-  }
-
-  String getCleanPacketId () {
-    return StringUtils.replace (packetId, '#','')
-  }
 }

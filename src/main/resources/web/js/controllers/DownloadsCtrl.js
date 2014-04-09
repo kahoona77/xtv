@@ -8,7 +8,7 @@ angular.module('xtv.controllers').
     $scope.downloads = [];
 
     $scope.loadDownloads = function () {
-        xtvService.send('xtv.downloads').then(function(response){
+        xtvService.send('xtv.listDownloads').then(function(response){
             if (response.status == 'ok') {
                 $scope.downloads = response.results;
             } else {

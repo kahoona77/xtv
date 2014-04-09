@@ -14,7 +14,7 @@ angular.module('xtv.directives', []).
       link: function (scope) {
 
         scope.$watch ('item', function (newValue) {
-          scope.progress = parseInt( (scope.item.loaded / scope.item.size) * 100);
+          scope.progress = parseInt( (scope.item.bytesReceived / scope.item.size) * 100);
 
           scope.status = 'default';
           if (scope.item.status == 'FAILED') {
