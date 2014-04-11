@@ -12,12 +12,14 @@ class Packet {
   String name
   String bot
   String channel
+  String server
   Date   date
 
   Map toMap () {
     return [
      '_id':     "${channel}:${bot}:${packetId}",
      'channel':  channel,
+     'server':   server,
      'bot':      bot,
      'packetId': packetId,
      'name':     name,

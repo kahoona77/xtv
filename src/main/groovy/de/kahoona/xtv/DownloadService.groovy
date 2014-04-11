@@ -60,8 +60,9 @@ class DownloadService extends Verticle {
         // save download
         vertx.eventBus.send ('xtv.saveDownload', [data: download.toMap()]) { Message saveResult ->
           // start download
-          vertx.eventBus.send ('xtv.startDownload', [data: download.toMap()])
-          message.reply (saveResult.body ())
+          vertx.eventBus.send ('xtv.startDownload', [data: download.toMap()])  {Message startResult ->
+            message.reply (startResult.body ())
+          }
         }
       }
     }

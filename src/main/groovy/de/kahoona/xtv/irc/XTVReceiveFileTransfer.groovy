@@ -50,7 +50,9 @@ class XTVReceiveFileTransfer extends ReceiveFileTransfer{
   protected completeDownload () {
     download.status = 'COMPLETE'
     download.bytesReceived = this.bytesTransfered
-    vertx.eventBus.send ('xtv.mongo', [action: 'save', collection: 'downloads', document: download.toMap()])
+    vertx.eventBus.send ('xtv.mongo', [action: 'save', collection: 'downloads', document: download.toMap()]) {
+      vertx.eventBus.send ('xtv.downloadComplete',[data: download.toMap ()])
+    }
   }
 
   @Override
@@ -90,6 +92,7 @@ class XTVReceiveFileTransfer extends ReceiveFileTransfer{
       }
 
       //download is complete
+      fileOutput.close ()
       completeDownload()
     } catch (Exception ignored) {
       stopDownload ()

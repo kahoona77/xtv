@@ -122,21 +122,12 @@ angular.module('xtv.controllers').
     };
 
     $scope.toggleConnection = function (server) {
-      //TODO toggle connection
-      if (server.status == 'Connected'){
-        server.status = 'Not Connected';
-      } else {
-        server.status = 'Connected';
-      }
+      xtvService.send ('xtv.toggleConnection', {data: angular.copy (server)}).then (function (response) {
+        if (response.status = 'ok') {
+          server.status = response.result.status;
+        } else {
+          msg.error (response.message);
+        }
+      });
     };
-
-    //TODO remove test-stuff
-    xtvService.on('test.new', function(message){
-      console.log('got test new (xtv): ', message);
-    });
-
-    xtvService.send('test.msg', {data: 123}).then(function(reply){
-      console.log('A reply received: ', reply);
-    });
-
   }]);

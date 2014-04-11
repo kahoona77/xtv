@@ -17,34 +17,6 @@ angular.module('xtv.controllers').
           msg.error (response.message);
         }
       });
-
-//      $scope.searchResults = [];
-//      $scope.searchResults.push ({
-//        id:    '#43',
-//        bot:   '[MG]-HDTV|EU|S|0006',
-//        file:  'Justified.S05E08.720p.mkv',
-//        size:  1390411776,
-//        speed: '768 Kb/s',
-//        date:  new Date ()
-//      });
-//
-//      $scope.searchResults.push ({
-//        id:    '#268',
-//        bot:   '[MG]-HDTV|EU|Q|0003',
-//        file:  'Justified.S05E08.720p.mkv',
-//        size:  1390411776,
-//        speed: '1293 Kb/s',
-//        date:  new Date ()
-//      });
-//
-//      $scope.searchResults.push ({
-//        id:    '#103',
-//        bot:   '[MG]-HDTV|EU|Q|0004',
-//        file:  'Justified.S05E08.720p.mkv',
-//        size:  1390411776,
-//        speed: '438 Kb/s',
-//        date:  new Date ()
-//      });
     };
 
     $scope.countPackets = function () {

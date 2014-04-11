@@ -88,6 +88,16 @@ angular.module('xtv.controllers').
       });
     };
 
+    $scope.calcTimeRemaining = function (item) {
+      var remainingKBytes = (item.size - item.bytesReceived) / 1024;
+      var remainingSeconds = remainingKBytes / item.speed;
+
+      var min = Math.round(remainingSeconds / 60);
+      var sec = Math.round(remainingSeconds % 60);
+
+      return min+":"+sec+" Minutes";
+    };
+
 
 //    $scope.downloads.push ({
 //      pos:       1,

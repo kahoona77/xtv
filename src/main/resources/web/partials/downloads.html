@@ -43,8 +43,8 @@
                     <download-progress ng-model="item"></download-progress>
                 </td>
                 <td>{{item.bytesReceived | megaBytes}} / {{item.size | megaBytes}}</td>
-                <td>{{item.speed}} Kb/s</td>
-                <td>{{item.remaining}} Minutes</td>
+                <td>{{item.speed | number:2}} Kb/s</td>
+                <td>{{calcTimeRemaining(item)}}</td>
             </tr>
             </tbody>
         </table>

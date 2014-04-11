@@ -35,12 +35,18 @@ class IrcBot extends ListenerAdapter{
 
   private Vertx    vertx
   private PircBotX bot
+  String downloadDir
 
-  public IrcBot (Vertx vertx, name, server, List<String> channels) {
+  public IrcBot (Vertx vertx, name, server, List<String> channels, String downloadDir) {
     this.vertx = vertx
     this.name = name
     this.server = server
     this.channels = channels
+    this.downloadDir = downloadDir
+  }
+
+  boolean isConnected () {
+    bot?.isConnected ()
   }
 
   public connect () {
@@ -65,10 +71,13 @@ class IrcBot extends ListenerAdapter{
     }
   }
 
+  public disconnect () {
+    bot.sendIRC ().quitServer ()
+  }
 
   @Override
   public void onMessage(final MessageEvent event) throws Exception {
-    Packet packet = PacketParser.getPacket (event.channel.name, event.user.nick, event.message)
+    Packet packet = PacketParser.getPacket (event.channel.name, event.user.nick, server, event.message)
     if (packet) {
       vertx.eventBus.send ('xtv.savePacket', [data: packet])
     } else {
@@ -88,12 +97,13 @@ class IrcBot extends ListenerAdapter{
   @Override
   public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
     println "receiving file: ${event.getSafeFilename ()}"
-    File file = new File ('c:/Temp/xtv/' + event.getSafeFilename ())
+    File file = new File (this.downloadDir, event.getSafeFilename ())
 
     boolean resume = false
     long startPosition = 0
     if (!file.exists()) {
       // new Download
+      file.getParentFile ().mkdirs ()
       file.createNewFile()
     } else {
       // resume download
@@ -127,4 +137,6 @@ class IrcBot extends ListenerAdapter{
   void stopDownload (Download download) {
     bot.sendIRC().message(download.bot, download.cancelMessage)
   }
+
+
 }

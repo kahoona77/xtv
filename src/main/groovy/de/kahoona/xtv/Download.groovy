@@ -9,6 +9,7 @@ class Download {
   String status
   String file
   String packetId
+  String server
   String bot
   Long   bytesReceived
   Long   size
@@ -16,7 +17,7 @@ class Download {
   Long   remaining
 
   static def fromPacket (def packet) {
-    return new Download (_id: packet.name, status: 'WAITING', file: packet.name, packetId: packet.packetId, bot: packet.bot)
+    return new Download (_id: packet.name, status: 'WAITING', file: packet.name, packetId: packet.packetId, bot: packet.bot, server: packet.server)
   }
 
 
@@ -45,6 +46,7 @@ class Download {
       'size'          : size          ,
       'speed'         : speed         ,
       'remaining'     : remaining     ,
+      'server'        : server        ,
     ]
   }
 
@@ -59,6 +61,7 @@ class Download {
         'size'          : data.size          ,
         'speed'         : data.speed         ,
         'remaining'     : data.remaining     ,
+        'server'        : data.server        ,
     ])
   }
 }

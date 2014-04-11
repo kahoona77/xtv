@@ -6,12 +6,14 @@
 
 <div class="row xtv-search-filed">
     <div class="col-sm-offset-1 col-sm-10">
-        <div class="input-group">
-            <input type="text" class="form-control" placeholder="Query" ng-model="query">
-            <span class="input-group-btn">
-                <button class="btn btn-default" type="button" ng-click="search()"><span class="glyphicon glyphicon-search"></span> Search</button>
-            </span>
-        </div>
+        <form>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Query" ng-model="query">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit" ng-click="search()"><span class="glyphicon glyphicon-search"></span> Search</button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
 
