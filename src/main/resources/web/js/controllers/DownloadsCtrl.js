@@ -68,7 +68,6 @@ angular.module('xtv.controllers').
     };
 
     $scope.clear = function () {
-      // TODO clearCompleted downloads
       var completed = [];
       angular.forEach ($scope.downloads, function (item) {
          if (item.status == 'COMPLETE') {
