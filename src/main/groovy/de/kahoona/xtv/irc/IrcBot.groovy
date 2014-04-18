@@ -79,9 +79,13 @@ class IrcBot extends ListenerAdapter{
   public void onMessage(final MessageEvent event) throws Exception {
     Packet packet = PacketParser.getPacket (event.channel.name, event.user.nick, server, event.message)
     if (packet) {
-      vertx.eventBus.send ('xtv.savePacket', [data: packet])
+      vertx.eventBus.send ('xtv.savePacket', [data: packet.toMap()]){Message response ->
+        if (response.body().status != 'ok') {
+          println ("ERROR: save Packet: " + response.body().message)
+        }
+      }
     } else {
-//      println ("xtv: ${event.message}")
+      //println ("xtv: ${event.message}")
     }
 
   }

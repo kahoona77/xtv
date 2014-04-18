@@ -37,16 +37,15 @@ class PacketService extends Verticle {
 
     // save packet
     vertx.eventBus.registerHandler ("xtv.savePacket") { Message message ->
-      Packet packet = message.body ().data
-      vertx.eventBus.send ('xtv.mongo', [action: 'save', collection: 'packets', document: packet.toMap()]) { Message result ->
+      def packet = message.body ().data
+      vertx.eventBus.send ('xtv.mongo', [action: 'save', collection: 'packets', document: packet]) { Message result ->
         message.reply (result.body ())
       }
     }
-
     // delete old packets
     vertx.eventBus.registerHandler ("xtv.cleanPackets") { Message message ->
       Date yesterday = new Date () - 1
-      vertx.eventBus.send ('xtv.mongo', [action: 'delete', collection: 'packets', matcher: [date: ['$lt': yesterday]]]) { Message result ->
+      vertx.eventBus.send ('xtv.mongo', [action: 'delete', collection: 'packets', matcher: [date: ['$lt': yesterday.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ")]]]) { Message result ->
         println "cleaned ${result.body ().number} packets."
       }
     }

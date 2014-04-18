@@ -17,7 +17,11 @@ class IrcConnector extends Verticle {
   Map<String, String> settings = [:]
 
   def start () {
-    initSettings ()
+    vertx.eventBus.send ('xtv.loadSettings', null) { Message settingsResponse ->
+      def settings = settingsResponse.body ().result
+      this.settings = settings
+      println "IrcConnector started."
+    }
 
     vertx.eventBus.registerHandler ("xtv.startDownload") { Message message ->
       Download download = message.body ().data
@@ -58,7 +62,7 @@ class IrcConnector extends Verticle {
       }
     }
 
-    println "IrcConnector started."
+
   }
 
   static void moveDownload (Download download, String fromDir, String toDir) {
@@ -87,12 +91,5 @@ class IrcConnector extends Verticle {
    }
    return bot
  }
-
-  private initSettings() {
-    vertx.eventBus.send ('xtv.loadSettings', null) { Message settingsResponse ->
-      def settings = settingsResponse.body ().result
-      this.settings = settings
-    }
-  }
 
 }

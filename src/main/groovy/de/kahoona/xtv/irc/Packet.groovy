@@ -17,14 +17,14 @@ class Packet {
 
   Map toMap () {
     return [
-     '_id':     "${channel}:${bot}:${packetId}",
+     '_id':     "${channel}:${bot}:${packetId}".toString(),
      'channel':  channel,
      'server':   server,
      'bot':      bot,
      'packetId': packetId,
      'name':     name,
      'size':     size,
-     'date':     date,
+     'date':     date.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
     ]
   }
 }
