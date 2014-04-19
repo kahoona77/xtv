@@ -65,6 +65,8 @@ class XTVReceiveFileTransfer extends ReceiveFileTransfer{
     RandomAccessFile fileOutput = new RandomAccessFile(file.getCanonicalPath(), "rw");
     fileOutput.seek(startPosition);
 
+    bytesTransfered = startPosition
+
     //Recieve file
     byte[] inBuffer = new byte[configuration.getDccTransferBufferSize()];
     byte[] outBuffer = new byte[4];

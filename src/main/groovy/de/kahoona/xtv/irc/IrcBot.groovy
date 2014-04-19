@@ -27,11 +27,13 @@ import javax.swing.text.html.ObjectView
 /**
  * Created by benjamin.ernst on 18.03.14.
  */
-class IrcBot extends ListenerAdapter{
+class IrcBot extends ListenerAdapter implements Runnable{
 
   String name
   String server
   List<String> channels
+  List<String> consoleLog = []
+  int consoleIndex = 0
 
   private Vertx    vertx
   private PircBotX bot
@@ -57,6 +59,7 @@ class IrcBot extends ListenerAdapter{
       .addCapHandler (new TLSCapHandler (new UtilSSLSocketFactory ().trustAllCertificates (), true))
       .addListener (this) //This class is a listener, so add it to the bots known listeners
       .setServerHostname (this.server)
+      .setDccResumeAcceptTimeout(30000)
 
     channels.each {
       builder.addAutoJoinChannel (it)
@@ -66,9 +69,9 @@ class IrcBot extends ListenerAdapter{
 
     Configuration configuration = builder.buildConfiguration ()
     this.bot = new PircBotX (configuration)
-    Thread.start{
-      bot.startBot ()
-    }
+
+    Thread t = new Thread(this)
+    t.start()
   }
 
   public disconnect () {
@@ -81,26 +84,20 @@ class IrcBot extends ListenerAdapter{
     if (packet) {
       vertx.eventBus.send ('xtv.savePacket', [data: packet.toMap()]){Message response ->
         if (response.body().status != 'ok') {
-          println ("ERROR: save Packet: " + response.body().message)
+          logToConsole ("ERROR: save Packet: " + response.body().message)
         }
       }
-    } else {
-      //println ("xtv: ${event.message}")
     }
 
   }
 
-
   @Override
   public void onNotice(NoticeEvent event) throws Exception {
-    println ("irc: $event.message")
+    logToConsole ("irc: $event.message")
   }
-
-
 
   @Override
   public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
-    println "receiving file: ${event.getSafeFilename ()}"
     File file = new File (this.downloadDir, event.getSafeFilename ())
 
     boolean resume = false
@@ -121,8 +118,10 @@ class IrcBot extends ListenerAdapter{
 
       XTVReceiveFileTransfer transfer
       if (!resume) {
+        logToConsole "receiving file: ${event.getSafeFilename ()}"
         transfer = event.accept (file) as XTVReceiveFileTransfer
       } else {
+        logToConsole "resuming file: ${event.getSafeFilename ()}"
         transfer = event.acceptResume (file, startPosition) as XTVReceiveFileTransfer
       }
 
@@ -139,8 +138,20 @@ class IrcBot extends ListenerAdapter{
   }
 
   void stopDownload (Download download) {
+    logToConsole "stopping file: ${download.file}"
     bot.sendIRC().message(download.bot, download.cancelMessage)
   }
 
+  private logToConsole (String msg) {
+    if (consoleIndex > 500) {
+      consoleIndex = 0
+    }
+    consoleLog[consoleIndex] = msg
+    consoleIndex++
+  }
 
+  @Override
+  void run() {
+    bot.startBot ()
+  }
 }

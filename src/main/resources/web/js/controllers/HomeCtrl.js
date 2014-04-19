@@ -11,13 +11,15 @@ angular.module('xtv.controllers').
           $scope.servers = response.results;
 
           //reselect server
-          if ($scope.selectedServer) {
-            angular.forEach ($scope.servers, function (server) {
+          angular.forEach ($scope.servers, function (server) {
+             $scope.getServerStatus (server);
+             if ($scope.selectedServer) {
                if (server._id == $scope.selectedServer._id) {
                  $scope.selectedServer = server;
+                 $scope.loadConsole (server);
                }
-            });
-          }
+             }
+          });
         } else {
           msg.error (response.message);
         }
@@ -27,6 +29,7 @@ angular.module('xtv.controllers').
 
     $scope.selectServer = function (server) {
       $scope.selectedServer = server;
+      $scope.loadConsole (server);
     };
 
     $scope.showAddServerDialog = function () {
@@ -86,6 +89,7 @@ angular.module('xtv.controllers').
         if (response.status = 'ok') {
           $scope.selectedServer = undefined;
           $scope.serverToDelete = undefined;
+          $scope.selectedServerConsole = undefined;
           $scope.loadServers();
         } else {
           msg.error (response.message);
@@ -128,6 +132,19 @@ angular.module('xtv.controllers').
         } else {
           msg.error (response.message);
         }
+      });
+    };
+
+    $scope.getServerStatus = function (server) {
+      xtvService.send ('xtv.getServerStatus', {data: angular.copy (server)}).then (function (response) {
+        server.status = response.status;
+      });
+    };
+
+    $scope.loadConsole = function (server) {
+      $scope.selectedServerConsole = undefined;
+      xtvService.send ('xtv.getServerConsole', {data: angular.copy (server)}).then (function (response) {
+        $scope.selectedServerConsole = response.console;
       });
     };
   }]);

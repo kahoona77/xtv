@@ -30,6 +30,8 @@ class XTV extends Verticle {
   def start() {
       def log = container.logger
 
+      Map settings = loadSettings ()
+
       // Init server
       RouteMatcher routeMatcher = new RouteMatcher()
 
@@ -54,7 +56,7 @@ class XTV extends Verticle {
 
       vertx.createSockJSServer(server).bridge(prefix: '/eventbus', [[:]], [[:]])
 
-      server.listen(8090)
+      server.listen(settings.port)
 
       // init mongo
       def mongoConfig = ["db_name": "xtv", "address": "xtv.mongo"]
@@ -85,6 +87,31 @@ class XTV extends Verticle {
       }
 
 
+  }
+
+  private static Properties loadSettings() {
+    String homeDir = System.getProperty("user.home")
+
+    File settingsFile = new File ("$homeDir/.xtv", 'conf.properties')
+    if (!settingsFile.exists()) {
+      settingsFile.getParentFile ().mkdirs ()
+      settingsFile.createNewFile()
+      settingsFile.write('xtv.port=8090\n')
+    }
+
+    def props = new Properties()
+    settingsFile.withInputStream {
+      stream -> props.load(stream)
+    }
+
+    Map settings = [:]
+    settings.port = new Integer(props['xtv.port'] as String)
+
+    println "------- XTV-Settings --------"
+    println "  Port:      ${settings.port}"
+    println "-----------------------------"
+
+    return settings
   }
 
   void createTestData () {

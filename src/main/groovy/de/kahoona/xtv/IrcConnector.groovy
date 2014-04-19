@@ -14,13 +14,20 @@ import java.nio.file.Path
 class IrcConnector extends Verticle {
 
   Map<String, IrcBot> bots = [:]
-  Map<String, String> settings = [:]
+  Map<String, String> settings = [name: 'kahoona-default']
 
   def start () {
     vertx.eventBus.send ('xtv.loadSettings', null) { Message settingsResponse ->
       def settings = settingsResponse.body ().result
       this.settings = settings
       println "IrcConnector started."
+    }
+
+    vertx.eventBus.registerHandler ("xtv.reloadSettings") { Message message ->
+      vertx.eventBus.send ('xtv.loadSettings', null) { Message settingsResponse ->
+        def settings = settingsResponse.body ().result
+        this.settings = settings
+      }
     }
 
     vertx.eventBus.registerHandler ("xtv.startDownload") { Message message ->
@@ -60,6 +67,23 @@ class IrcConnector extends Verticle {
       vertx.eventBus.send ('xtv.saveServer', [data: server]) {Message response ->
         message.reply ([status: response.body ().status, result: server])
       }
+    }
+
+    vertx.eventBus.registerHandler ("xtv.getServerStatus") { Message message ->
+      def server = message.body ().data
+      IrcBot bot = getAndUpdateServer(server, settings.nick)
+      if (bot.isConnected ()) {
+        message.reply ([status: 'Connected'])
+      } else {
+        message.reply ([status: 'Not Connected'])
+      }
+    }
+
+    vertx.eventBus.registerHandler ("xtv.getServerConsole") { Message message ->
+      def server = message.body ().data
+      IrcBot bot = getAndUpdateServer(server, settings.nick)
+      String log = bot.consoleLog.join('\n')
+      message.reply ([console: log])
     }
 
 

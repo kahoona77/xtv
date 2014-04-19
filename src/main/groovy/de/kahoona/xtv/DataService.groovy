@@ -77,6 +77,7 @@ class DataService extends Verticle {
     vertx.eventBus.registerHandler ("xtv.saveSettings") { Message message ->
       def settings = message.body ().data
       vertx.eventBus.send ('xtv.mongo', [action: 'save', collection: 'settings', document: settings]) { Message result ->
+        vertx.eventBus.send ('xtv.reloadSettings', null)
         message.reply (result.body ())
       }
     }
