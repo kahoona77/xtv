@@ -4,6 +4,7 @@ import de.kahoona.xtv.domain.Download
 import de.kahoona.xtv.domain.XtvSettings
 import de.kahoona.xtv.irc.IrcBot
 import de.kahoona.xtv.irc.XTVReceiveFileTransfer
+import org.apache.commons.lang3.StringUtils
 import org.pircbotx.hooks.events.IncomingFileTransferEvent
 
 /**
@@ -29,16 +30,16 @@ class DownloadsService {
 
   def cancelDownload(Download download) {
     //first check running transfers
-    XTVReceiveFileTransfer transfer = downloads[download.id]
+    XTVReceiveFileTransfer transfer = downloads[StringUtils.trim(download.id)]
     if (transfer) {
       if (transfer.isRunning ()) {
         this.stopDownload(download)
       }
-      downloads.remove(download.id)
+      downloads.remove(StringUtils.trim(download.id))
     }
 
     //now check pending downloads
-    pendingDownloads.remove(download.id)
+    pendingDownloads.remove(StringUtils.trim(download.id))
   }
 
 
@@ -49,7 +50,7 @@ class DownloadsService {
     } else {
       bot.startDownload(download)
       download.status = 'PENDING'
-      pendingDownloads[download.id] = download
+      pendingDownloads[StringUtils.trim(download.id)] = download
       return [status: 'ok']
     }
   }
@@ -92,7 +93,7 @@ class DownloadsService {
     transfer.download = download
 
     //add to downloads
-    downloads[download.id] = transfer
+    downloads[StringUtils.trim(download.id)] = transfer
 
     transfer.transfer()
   }
