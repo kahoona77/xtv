@@ -1,0 +1,115 @@
+package de.kahoona.xtv.irc
+
+import de.kahoona.xtv.domain.Download
+import de.kahoona.xtv.domain.XtvSettings
+import lombok.Cleanup
+import org.pircbotx.Configuration
+import org.pircbotx.PircBotX
+import org.pircbotx.User
+import org.pircbotx.dcc.ReceiveFileTransfer
+
+import java.nio.file.Files
+
+/**
+ * Created by Benni on 08.04.14.
+ */
+class XTVReceiveFileTransfer extends ReceiveFileTransfer{
+
+  XtvSettings settings
+  Download    download
+
+
+  long lastTimeStamp = 0
+
+
+  XTVReceiveFileTransfer(Configuration<PircBotX> configuration, Socket socket, User user, File file, long startPosition) {
+    super(configuration, socket, user, file, startPosition)
+  }
+
+  @Override
+  protected void onAfterSend () {
+    download.status = 'RUNNING'
+    long now = System.currentTimeMillis()
+    download.speed = calcCurrentSpeed (download.bytesReceived, this.bytesTransfered, lastTimeStamp, now)
+    download.bytesReceived = this.bytesTransfered
+
+    lastTimeStamp = now
+  }
+
+  static double calcCurrentSpeed(long oldSize, long newSize, long oldTime, long newTime) {
+    double sizeDelta = (newSize - oldSize) / 1024
+    double timeDelta = (newTime - oldTime) / 1000
+    return sizeDelta / timeDelta
+  }
+
+  boolean isRunning() {
+    download.status != 'FAILED'
+  }
+
+  protected stopDownload () {
+    download.status = 'FAILED'
+    download.bytesReceived = this.bytesTransfered
+  }
+
+  protected completeDownload () {
+    download.status = 'COMPLETE'
+    download.bytesReceived = this.bytesTransfered
+
+    File file = new File(settings.tempDir, download.file)
+    if (file.exists()) {
+      try {
+        Files.move(file.toPath(), new File(settings.downloadDir, file.getName()).toPath())
+      } catch (IOException e) {
+        e.printStackTrace()
+      }
+    }
+  }
+
+  @Override
+  protected void transferFile() throws IOException {
+    @Cleanup
+    BufferedInputStream socketInput = new BufferedInputStream(socket.getInputStream());
+    @Cleanup
+    OutputStream socketOutput = socket.getOutputStream();
+    @Cleanup
+    RandomAccessFile fileOutput = new RandomAccessFile(file.getCanonicalPath(), "rw");
+    fileOutput.seek(startPosition);
+
+    bytesTransfered = startPosition
+
+    //Recieve file
+    byte[] inBuffer = new byte[configuration.getDccTransferBufferSize()];
+    byte[] outBuffer = new byte[4];
+    int bytesRead;
+    int counter = 0
+
+    try {
+      while ((bytesRead = socketInput.read(inBuffer, 0, inBuffer.length)) != -1) {
+        fileOutput.write(inBuffer, 0, bytesRead);
+        bytesTransfered += bytesRead;
+        //Send back an acknowledgement of how many bytes we have got so far.
+        //Convert bytesTransfered to an "unsigned, 4 byte integer in network byte order", per DCC specification
+        outBuffer[0] = (byte) ((bytesTransfered >> 24) & 0xff);
+        outBuffer[1] = (byte) ((bytesTransfered >> 16) & 0xff);
+        outBuffer[2] = (byte) ((bytesTransfered >> 8) & 0xff);
+        outBuffer[3] = (byte) (bytesTransfered & 0xff);
+        socketOutput.write(outBuffer);
+
+        counter++
+
+        if (counter == 500) {
+          onAfterSend();
+          counter = 0;
+        }
+      }
+
+      //download is complete
+      fileOutput.close ()
+      completeDownload()
+    } catch (Exception ignored) {
+      stopDownload ()
+    }
+  }
+
+
+}
