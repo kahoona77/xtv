@@ -1,5 +1,6 @@
 package de.kahoona.xtv.irc
 
+import de.kahoona.xtv.data.StreamManager
 import de.kahoona.xtv.domain.Download
 import de.kahoona.xtv.domain.XtvSettings
 import lombok.Cleanup
@@ -15,8 +16,9 @@ import java.nio.file.Files
  */
 class XTVReceiveFileTransfer extends ReceiveFileTransfer{
 
-  XtvSettings settings
-  Download    download
+  XtvSettings   settings
+  StreamManager streamManager
+  Download      download
 
 
   long lastTimeStamp = 0
@@ -68,13 +70,13 @@ class XTVReceiveFileTransfer extends ReceiveFileTransfer{
   @Override
   protected void transferFile() throws IOException {
     @Cleanup
-    BufferedInputStream socketInput = new BufferedInputStream(socket.getInputStream());
+    InputStream socketInput = streamManager.registerStream(socket.getInputStream());
     @Cleanup
     OutputStream socketOutput = socket.getOutputStream();
     @Cleanup
     RandomAccessFile fileOutput = new RandomAccessFile(file.getCanonicalPath(), "rw");
-    fileOutput.seek(startPosition);
 
+    fileOutput.seek(startPosition);
     bytesTransfered = startPosition
 
     //Recieve file

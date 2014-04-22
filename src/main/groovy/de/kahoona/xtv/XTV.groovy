@@ -32,7 +32,7 @@ class XTV {
     InetSocketAddress addr = new InetSocketAddress(settings.port)
     HttpServer httpServer = HttpServer.create(addr, 0)
     httpServer.with {
-      createContext('/data',      new DataHandler(db))
+      createContext('/data',      new DataHandler(downloadsService))
       createContext('/irc',       new IrcHandler (connector))
       createContext('/packets',   new PacketHandler(packetsService))
       createContext('/downloads', new DownloadHandler(downloadsService))

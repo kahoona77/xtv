@@ -2,6 +2,8 @@ package de.kahoona.xtv.server
 
 import com.sun.net.httpserver.HttpExchange
 import de.kahoona.xtv.db.MongoDB
+import de.kahoona.xtv.domain.XtvSettings
+import de.kahoona.xtv.services.DownloadsService
 
 /**
  * Created by Benni on 19.04.2014.
@@ -9,9 +11,11 @@ import de.kahoona.xtv.db.MongoDB
 class DataHandler extends JSONHandler {
 
   MongoDB db
+  DownloadsService downloadsService
 
-  public DataHandler(MongoDB db) {
-    this.db = db
+  public DataHandler(DownloadsService downloadsService) {
+    this.db = MongoDB.newInstance()
+    this.downloadsService = downloadsService
   }
 
   @Override
@@ -33,6 +37,12 @@ class DataHandler extends JSONHandler {
           break
         case "/data/deleteChannel":
           deleteChannel(exchange)
+          break
+        case "/data/loadSettings":
+          loadSettings(exchange)
+          break
+        case "/data/saveSettings":
+          saveSettings(exchange)
           break
       }
     } catch (Exception e) {
@@ -78,6 +88,25 @@ class DataHandler extends JSONHandler {
     server.channels = server.channels - channelToRemove
 
     db.save('servers', server)
+    def data = [success: true, status: 'ok']
+    jsonResponse(data, exchange)
+  }
+
+  void loadSettings(HttpExchange exchange) {
+    def settings = db.findFirst('settings')
+
+    def data = [success: true, status: 'ok', result: settings]
+    jsonResponse(data, exchange)
+  }
+
+  void saveSettings(HttpExchange exchange) {
+    Map json = parseJsonPost(exchange)
+    XtvSettings settings = XtvSettings.fromData(json.data)
+
+    db.save('settings', settings.toMap())
+
+    downloadsService.updateSettings (settings)
+
     def data = [success: true, status: 'ok']
     jsonResponse(data, exchange)
   }

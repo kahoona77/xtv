@@ -3,10 +3,10 @@
 /* Controllers */
 
 angular.module('xtv.controllers').
-  controller('SettingsCtrl', ['$scope', 'xtvService', function($scope, xtvService) {
+  controller('SettingsCtrl', ['$scope', '$http', function($scope, $http) {
 
     $scope.loadSettings = function () {
-      xtvService.send('xtv.loadSettings').then(function (response) {
+      $http.get('data/loadSettings').success(function (response) {
         if (response.status == 'ok') {
           $scope.settings = response.result;
 
@@ -18,7 +18,7 @@ angular.module('xtv.controllers').
     $scope.loadSettings();
 
     $scope.saveSettings = function () {
-      xtvService.send('xtv.saveSettings', {data: $scope.settings}).then(function (response) {
+      $http.post('data/saveSettings', {data: $scope.settings}).success(function (response) {
         if (response.status = 'ok') {
           $scope.hideSettingsDialog();
           $scope.loadSettings();

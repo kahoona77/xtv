@@ -1,5 +1,6 @@
 package de.kahoona.xtv.services
 
+import de.kahoona.xtv.data.StreamManager
 import de.kahoona.xtv.domain.Download
 import de.kahoona.xtv.domain.XtvSettings
 import de.kahoona.xtv.irc.IrcBot
@@ -17,8 +18,12 @@ class DownloadsService {
   Map<String, XTVReceiveFileTransfer> downloads = [:]
   Map<String, Download> pendingDownloads = [:]
 
+  private StreamManager streamManager
+
   public DownloadsService(XtvSettings settings) {
-    this.settings = settings
+    this.streamManager = new StreamManager(500 * 1024 * 8) // 500 KBytes
+    this.streamManager.enable()
+    this.updateSettings(settings)
   }
 
   //find all downloads
@@ -68,7 +73,7 @@ class DownloadsService {
     }
 
     download.size = event.filesize
-    File file = new File(this.settings.downloadDir, event.getSafeFilename())
+    File file = new File(this.settings.tempDir, event.getSafeFilename())
 
     boolean resume = false
     long startPosition = 0
@@ -89,12 +94,25 @@ class DownloadsService {
       transfer = event.acceptResume(file, startPosition) as XTVReceiveFileTransfer
     }
 
-    transfer.settings = settings
-    transfer.download = download
+    transfer.settings      = settings
+    transfer.streamManager = streamManager
+    transfer.download      = download
 
     //add to downloads
     downloads[StringUtils.trim(download.id)] = transfer
 
     transfer.transfer()
+  }
+
+  void updateSettings(XtvSettings settings) {
+    this.settings = settings
+
+    if (settings.maxDownStream <= 0) {
+      this.streamManager.disable()
+    } else {
+      this.streamManager.enable()
+      this.streamManager.setDownstreamKbps(settings.maxDownStream * 8)
+    }
+
   }
 }
