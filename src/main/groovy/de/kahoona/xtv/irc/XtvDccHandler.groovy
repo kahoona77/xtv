@@ -98,10 +98,8 @@ class XtvDccHandler extends DccHandler{
       //Someone is acknowledging a transfer resume
       //Example: DCC ACCEPT <filename> 0 <position> <token> (if 0 exists then its a passive connection)
       String filename = requestParts.get(2);
-      int dataPosition = (requestParts.size() == 5) ? 3 : 4;
+      int dataPosition = 4; //(requestParts.size() == 5) ? 3 : 4;
       long position = Integer.parseInt(requestParts.get(dataPosition));
-      //noinspection GroovyUnusedAssignment
-      String transferToken = requestParts.get(dataPosition + 1);
       synchronized (pendingReceiveTransfers) {
         Iterator<Map.Entry<DccHandler.PendingRecieveFileTransfer, CountDownLatch>> pendingItr = pendingReceiveTransfers.entrySet().iterator();
         while (pendingItr.hasNext()) {
