@@ -9,18 +9,20 @@ class XtvSettings {
     String nick
     String tempDir
     String downloadDir
+    String postDownloadTrigger
     int    port
     long   maxDownStream
 
 
   Map toMap() {
     return [
-        _id:           this._id,
-        nick:          this.nick,
-        tempDir:       this.tempDir,
-        downloadDir:   this.downloadDir,
-        port:          this.port,
-        maxDownStream: this.maxDownStream,
+        _id:                 this._id,
+        nick:                this.nick,
+        tempDir:             this.tempDir,
+        downloadDir:         this.downloadDir,
+        port:                this.port,
+        maxDownStream:       this.maxDownStream,
+        postDownloadTrigger: this.postDownloadTrigger,
     ]
   }
     static XtvSettings fromData (def data) {
@@ -29,6 +31,8 @@ class XtvSettings {
           nick: data.nick,
           tempDir: data.tempDir,
           downloadDir: data.downloadDir,
-          maxDownStream: data.maxDownStream ? new Long (data.maxDownStream as String): 0)
+          maxDownStream: data.maxDownStream ? new Long (data.maxDownStream as String): 0,
+          postDownloadTrigger: data.postDownloadTrigger,
+      )
     }
 }

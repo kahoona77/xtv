@@ -44,7 +44,7 @@ class IrcConnector {
       server.status = 'Not Connected'
     }
     db.save('servers', server.toMap ())
-    return server
+    return server.status
   }
 
   public List<String> getServerConsole(IrcServer server) {

@@ -4,6 +4,7 @@ import de.kahoona.xtv.data.StreamManager
 import de.kahoona.xtv.domain.Download
 import de.kahoona.xtv.domain.XtvSettings
 import lombok.Cleanup
+import org.apache.commons.lang3.StringUtils
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.User
@@ -57,13 +58,23 @@ class XTVReceiveFileTransfer extends ReceiveFileTransfer{
     download.status = 'COMPLETE'
     download.bytesReceived = this.bytesTransfered
 
-    File file = new File(settings.tempDir, download.file)
+    File file = new File(settings.tempDir, StringUtils.trim (download.file))
     if (file.exists()) {
       try {
-        Files.move(file.toPath(), new File(settings.downloadDir, file.getName()).toPath())
+        File destination = new File(settings.downloadDir, file.getName())
+        Files.move(file.toPath(), destination.toPath())
+
+        // execute post download trigger
+        if (settings.postDownloadTrigger) {
+          String trigger = "${settings.postDownloadTrigger} $file.absolutePath"
+          trigger.execute()
+        }
+
       } catch (IOException e) {
         e.printStackTrace()
       }
+    } else {
+      println "Error did not find file '${file.absolutePath}' to move."
     }
   }
 
