@@ -3,11 +3,15 @@ package de.kahoona.xtv.server
 import com.sun.net.httpserver.HttpExchange
 import de.kahoona.xtv.domain.Download
 import de.kahoona.xtv.services.DownloadsService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Created by Benni on 19.04.2014.
  */
 class DownloadHandler extends JSONHandler {
+
+  private static Logger log = LoggerFactory.getLogger(DownloadHandler.class)
 
   DownloadsService downloadsService
 
@@ -37,7 +41,7 @@ class DownloadHandler extends JSONHandler {
           break
       }
     } catch (Exception e) {
-      e.printStackTrace()
+      log.error('Error while handling request.',e)
     }
   }
 

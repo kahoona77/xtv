@@ -2,11 +2,15 @@ package de.kahoona.xtv.services
 
 import de.kahoona.xtv.db.MongoDB
 import de.kahoona.xtv.domain.Packet
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Created by Benni on 21.04.2014.
  */
 class PacketsService {
+
+  private static Logger log = LoggerFactory.getLogger(PacketsService.class)
 
   MongoDB db
 
@@ -31,6 +35,6 @@ class PacketsService {
   public void cleanPackets () {
     Date yesterday = new Date () - 1
     def result = this.db.db.packets.remove ([date: ['$lt': yesterday.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ")]])
-    println "cleaned ${result.n} packets."
+    log.info "cleaned ${result.n} packets."
   }
 }

@@ -10,6 +10,7 @@ class XtvSettings {
     String tempDir
     String downloadDir
     String postDownloadTrigger
+    String logFile
     int    port
     long   maxDownStream
 
@@ -23,6 +24,7 @@ class XtvSettings {
         port:                this.port,
         maxDownStream:       this.maxDownStream,
         postDownloadTrigger: this.postDownloadTrigger,
+        logFile:             this.logFile,
     ]
   }
     static XtvSettings fromData (def data) {
@@ -33,6 +35,7 @@ class XtvSettings {
           downloadDir: data.downloadDir,
           maxDownStream: data.maxDownStream ? new Long (data.maxDownStream as String): 0,
           postDownloadTrigger: data.postDownloadTrigger,
+          logFile: data.logFile,
       )
     }
 }

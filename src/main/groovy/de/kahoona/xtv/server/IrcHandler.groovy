@@ -6,6 +6,8 @@ import de.kahoona.xtv.domain.IrcServer
 import de.kahoona.xtv.irc.IrcBot
 import de.kahoona.xtv.domain.Packet
 import de.kahoona.xtv.services.IrcConnector
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.nio.file.Files
 
@@ -13,6 +15,8 @@ import java.nio.file.Files
  * Created by Benni on 19.04.2014.
  */
 class IrcHandler extends JSONHandler {
+
+  private static Logger log = LoggerFactory.getLogger(IrcHandler.class)
 
   IrcConnector connector
 
@@ -37,7 +41,7 @@ class IrcHandler extends JSONHandler {
           break
       }
     } catch (Exception e) {
-      e.printStackTrace()
+      log.error('Error while handling request.',e)
     }
   }
 

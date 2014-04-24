@@ -7,11 +7,15 @@ import de.kahoona.xtv.irc.IrcBot
 import de.kahoona.xtv.irc.XTVReceiveFileTransfer
 import org.apache.commons.lang3.StringUtils
 import org.pircbotx.hooks.events.IncomingFileTransferEvent
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Created by Benni on 21.04.2014.
  */
 class DownloadsService {
+
+  private static Logger log = LoggerFactory.getLogger(DownloadsService.class)
 
   XtvSettings settings
   IrcConnector connector
@@ -53,6 +57,7 @@ class DownloadsService {
     if (!bot || !bot.isConnected()) {
       return [status: 'err', message: "Server '${download.server}' not connected.".toString ()]
     } else {
+      log.info ("Adding download to queue: ${download.file}")
       bot.startDownload(download)
       download.status = 'PENDING'
       pendingDownloads[StringUtils.trim(download.id)] = download
@@ -68,7 +73,7 @@ class DownloadsService {
   def newTransfer(IncomingFileTransferEvent event) {
     Download download =  pendingDownloads.remove(event.getSafeFilename())
     if (!download) {
-      println "Error: No pending download for ${event.getSafeFilename()}"
+      log.error ("Error: No pending download for ${event.getSafeFilename()}")
       return //abort
     }
 

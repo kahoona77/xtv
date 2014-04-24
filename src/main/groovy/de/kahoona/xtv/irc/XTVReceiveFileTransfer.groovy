@@ -9,6 +9,8 @@ import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.User
 import org.pircbotx.dcc.ReceiveFileTransfer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.nio.file.Files
 
@@ -16,6 +18,8 @@ import java.nio.file.Files
  * Created by Benni on 08.04.14.
  */
 class XTVReceiveFileTransfer extends ReceiveFileTransfer{
+
+  private static Logger log = LoggerFactory.getLogger(XTVReceiveFileTransfer.class)
 
   XtvSettings   settings
   StreamManager streamManager
@@ -52,9 +56,11 @@ class XTVReceiveFileTransfer extends ReceiveFileTransfer{
   protected stopDownload () {
     download.status = 'FAILED'
     download.bytesReceived = this.bytesTransfered
+    log.info("Download stopped: ${download.file}")
   }
 
   protected completeDownload () {
+    log.info("Download complete: ${download.file}")
     download.status = 'COMPLETE'
     download.bytesReceived = this.bytesTransfered
 
@@ -71,15 +77,16 @@ class XTVReceiveFileTransfer extends ReceiveFileTransfer{
         }
 
       } catch (IOException e) {
-        e.printStackTrace()
+        log.error("Error while moving file '${file.absolutePath}'",e)
       }
     } else {
-      println "Error did not find file '${file.absolutePath}' to move."
+      log.error  ("Error did not find file '${file.absolutePath}' to move.")
     }
   }
 
   @Override
   protected void transferFile() throws IOException {
+    log.info("Download starting transfer: ${download.file}")
     @Cleanup
     InputStream socketInput = streamManager.registerStream(socket.getInputStream());
     @Cleanup
