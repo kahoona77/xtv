@@ -8,7 +8,7 @@ angular.module('xtv.controllers').
     $scope.downloads = [];
 
     $scope.loadDownloads = function () {
-        $http.get('downloads/listDownloads').success(function(response){
+        $http.get('downloads/listDownloads',{params: { 'nocache': new Date().getTime() }}).success(function(response){
             if (response.status == 'ok') {
                 $scope.downloads = response.results;
             } else {
@@ -19,12 +19,18 @@ angular.module('xtv.controllers').
     $scope.loadDownloads();
 
     $scope.startReloadTimer = function () {
-      $timeout (function () {
+      $scope.reloadTimer = $timeout (function () {
           $scope.loadDownloads();
           $scope.startReloadTimer();
-      }, 3000)
+      }, 1000)
     };
     $scope.startReloadTimer();
+
+    $scope.$on ('$locationChangeStart', function () {
+      if ($scope.reloadTimer) {
+        $timeout.cancel ($scope.reloadTimer);
+      }
+    });
 
     $scope.selectItem = function (item) {
       $scope.selectedItem = item;
