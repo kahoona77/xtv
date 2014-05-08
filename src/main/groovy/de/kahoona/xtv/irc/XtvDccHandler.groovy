@@ -29,7 +29,7 @@ class XtvDccHandler extends DccHandler{
       final String safeFilename = (rawFilename.startsWith("\"") && rawFilename.endsWith("\"")) ? rawFilename.substring(1, rawFilename.length() - 1) : rawFilename;
       InetAddress address = integerToAddress(requestParts.get(3));
       int port = Integer.parseInt(requestParts.get(4));
-      long size = Integer.parseInt(Utils.tryGetIndex(requestParts, 5, "-1"));
+      long size = Long.parseLong (Utils.tryGetIndex(requestParts, 5, "-1"));
       String transferToken = Utils.tryGetIndex(requestParts, 6, null);
 
       if (transferToken != null)
@@ -62,7 +62,7 @@ class XtvDccHandler extends DccHandler{
       //Reply with: DCC ACCEPT <filename> 0 <position> <token>
       String filename = requestParts.get(2);
       int port = Integer.parseInt(requestParts.get(3));
-      long position = Integer.parseInt(requestParts.get(4));
+      long position = Long.parseLong (requestParts.get(4));
 
       if (port == 0) {
         //Passive transfer
@@ -99,7 +99,7 @@ class XtvDccHandler extends DccHandler{
       //Example: DCC ACCEPT <filename> 0 <position> <token> (if 0 exists then its a passive connection)
       String filename = requestParts.get(2);
       int dataPosition = 4; //(requestParts.size() == 5) ? 3 : 4;
-      long position = Integer.parseInt(requestParts.get(dataPosition));
+      long position = Long.parseLong (requestParts.get(dataPosition));
       synchronized (pendingReceiveTransfers) {
         Iterator<Map.Entry<DccHandler.PendingRecieveFileTransfer, CountDownLatch>> pendingItr = pendingReceiveTransfers.entrySet().iterator();
         while (pendingItr.hasNext()) {
