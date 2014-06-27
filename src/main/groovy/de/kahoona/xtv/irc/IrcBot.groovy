@@ -11,6 +11,7 @@ import org.pircbotx.PircBotX
 import org.pircbotx.UtilSSLSocketFactory
 import org.pircbotx.cap.TLSCapHandler
 import org.pircbotx.hooks.ListenerAdapter
+import org.pircbotx.hooks.events.DisconnectEvent
 import org.pircbotx.hooks.events.IncomingFileTransferEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.events.NoticeEvent
@@ -27,6 +28,7 @@ class IrcBot extends ListenerAdapter implements Runnable {
 
   List<String> consoleLog = []
   int consoleIndex = 0
+  boolean automaticReconnect = true
 
   private PircBotX bot
 
@@ -60,11 +62,18 @@ class IrcBot extends ListenerAdapter implements Runnable {
     Configuration configuration = builder.buildConfiguration()
     this.bot = new PircBotX(configuration)
 
+    //enable automatic reconnect
+    this.automaticReconnect = true
+
     Thread t = new Thread(this)
     t.start()
   }
 
   public disconnect() {
+    //disable automatic reconnect
+    this.automaticReconnect = false
+
+    //disconnect
     bot.sendIRC().quitServer()
   }
 
@@ -75,6 +84,19 @@ class IrcBot extends ListenerAdapter implements Runnable {
       packetsService.savePacket(packet)
     }
 
+  }
+
+  @Override
+  public void onDisconnect(DisconnectEvent event) throws Exception {
+    //clear console
+    this.consoleLog = []
+    this.consoleIndex = 0
+
+    logToConsole "DISCONNECT from ${server.name}"
+
+    if (automaticReconnect && this.isConnected ()) {
+      this.connect ()
+    }
   }
 
   @Override

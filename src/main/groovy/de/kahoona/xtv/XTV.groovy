@@ -6,11 +6,13 @@ import de.kahoona.xtv.domain.XtvSettings
 import de.kahoona.xtv.server.DataHandler
 import de.kahoona.xtv.server.DownloadHandler
 import de.kahoona.xtv.server.IrcHandler
+import de.kahoona.xtv.server.ShowsHandler
 import de.kahoona.xtv.services.IrcConnector
 import de.kahoona.xtv.server.PacketHandler
 import de.kahoona.xtv.server.StaticFileHandler
 import de.kahoona.xtv.services.DownloadsService
 import de.kahoona.xtv.services.PacketsService
+import de.kahoona.xtv.services.ShowsService
 import org.apache.log4j.FileAppender
 import org.apache.log4j.Layout
 import org.apache.log4j.Level
@@ -36,6 +38,7 @@ class XTV {
 
     DownloadsService downloadsService = new DownloadsService(settings)
     PacketsService packetsService = new PacketsService()
+    ShowsService showsService = new ShowsService()
     IrcConnector connector = new IrcConnector(settings, packetsService, downloadsService)
     downloadsService.connector = connector
 
@@ -47,6 +50,7 @@ class XTV {
       createContext('/irc',       new IrcHandler (connector))
       createContext('/packets',   new PacketHandler(packetsService))
       createContext('/downloads', new DownloadHandler(downloadsService))
+      createContext('/shows',     new ShowsHandler(showsService))
       createContext('/',          new StaticFileHandler())
       setExecutor(Executors.newCachedThreadPool())
       start()

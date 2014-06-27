@@ -63,12 +63,6 @@ class DataHandler extends JSONHandler {
     }
   }
 
-  void saveServer(HttpExchange exchange) {
-    Map json = parseJsonPost(exchange)
-
-    def result = db.save('servers', json.data)
-    jsonResponse([success: true, status: 'ok'], exchange)
-  }
 
   void deleteServer(HttpExchange exchange) {
     Map json = parseJsonPost(exchange)
