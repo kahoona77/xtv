@@ -64,7 +64,7 @@ class MongoDB {
         }
         DBCollection collection = this.db[collectionName] as DBCollection
         WriteResult result = collection.update(['_id': document._id], document, true, false)
-        return result
+        return [id: document._id, result: result]
     }
 
     public def remove (String collectionName, def document) {

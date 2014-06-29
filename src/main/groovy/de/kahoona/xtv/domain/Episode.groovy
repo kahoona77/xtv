@@ -5,14 +5,32 @@ package de.kahoona.xtv.domain
  */
 class Episode {
 
-  String name
-  int season
-  int number
+  String  _id
+  String  showId
+  String  name
+  int     season
+  int     number
+  boolean watched
+  String  airDate
 
-  public Episode (com.omertron.thetvdbapi.model.Episode episode) {
+  public Episode (Show show, com.omertron.thetvdbapi.model.Episode episode) {
+    this.showId = show._id
     this.name = episode.episodeName
     this.season = episode.seasonNumber
     this.number = episode.episodeNumber
+    this.airDate = episode.firstAired
+  }
+
+  Map toMap() {
+    return [
+        '_id'      : _id,
+        'showId'   : showId,
+        'name'     : name,
+        'season'   : season,
+        'number'   : number,
+        'watched'  : watched,
+        'airDate'  : airDate,
+    ]
   }
 
 }

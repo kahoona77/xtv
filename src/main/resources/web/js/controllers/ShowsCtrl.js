@@ -31,6 +31,18 @@ angular.module('xtv.controllers').
 
     $scope.selectShow = function (show) {
       $scope.selectedShow = show;
+      $scope.loadEpisodes (show);
+    };
+
+    $scope.loadEpisodes = function (show) {
+     $scope.seasons = undefined;
+     $http.get('shows/loadEpisodes', {params : {showId: show._id}}).success(function(response){
+        if (response.status == 'ok') {
+          $scope.seasons = response.data;
+        } else {
+          msg.error (response.message);
+        }
+      });
     };
 
     $scope.showDeleteShowConfirm = function (show) {
@@ -43,6 +55,8 @@ angular.module('xtv.controllers').
         if (response.status = 'ok') {
           $('#deleteShowConfirmDialog').modal('hide');
           $scope.showToDelete = undefined;
+          $scope.selectedShow = undefined;
+          $scope.seasons = undefined;
           $scope.loadShows();
         } else {
           msg.error (response.message);
