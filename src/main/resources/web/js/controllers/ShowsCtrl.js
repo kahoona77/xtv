@@ -67,10 +67,10 @@ angular.module('xtv.controllers').
     $scope.searchEpisode = function (show, episode) {
       var pad = "00";
       var season = "" + episode.season;
-      season =  pad.substring(0, pad.length - season) + season;
+      season =  pad.substring(0, pad.length - season.length) + season;
 
       var number = "" + episode.number;
-      number =  pad.substring(0, pad.length - number) + number;
+      number =  pad.substring(0, pad.length - number.length) + number;
 
       var query = show.name + " S" +  season + "E" + number;
       $location.url ('/search/' + query);
