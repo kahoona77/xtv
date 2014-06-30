@@ -45,7 +45,6 @@ class ShowsService {
   }
 
   public Map loadEpisodes (String showId) {
-    def result1 = db.findAll('episodes')
     def result = db.findWithQuery ('episodes', [showId: showId], 500)
     return result.groupBy {StringUtils.leftPad (it.season as String, 2, '0')}
   }

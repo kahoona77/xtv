@@ -64,16 +64,16 @@ angular.module('xtv.controllers').
       });
     };
 
-    $scope.searchEpisode = function (episode) {
-      var pad = "00"
+    $scope.searchEpisode = function (show, episode) {
+      var pad = "00";
       var season = "" + episode.season;
       season =  pad.substring(0, pad.length - season) + season;
 
       var number = "" + episode.number;
       number =  pad.substring(0, pad.length - number) + number;
 
-      var query = episode.series + " S" +  season + "E" + number;
-      $location.path ('/search/' + query);
+      var query = show.name + " S" +  season + "E" + number;
+      $location.url ('/search/' + query);
     };
 
     //search
@@ -100,6 +100,57 @@ angular.module('xtv.controllers').
       });
     };
 
+    $scope.markEpisode = function (episode) {
+      episode.loaded = !episode.loaded;
+      $http.post ('shows/saveEpisode', {data: episode}).success (function (response) {
+        if (response.status != 'ok') {
+          msg.error (response.message);
+        }
+      });
+    };
+
+    //Filter
+    $scope.hideLoaded = true;
+    $scope.showLoaded = function () {
+      $scope.hideLoaded = !$scope.hideLoaded;
+    };
+
+    $scope.showLoadedEpisode = function(episode) {
+      if ($scope.hideLoaded && episode.loaded) {
+        return false;
+      }
+      return true;
+    };
+
+    $scope.episodesLeftToShow = function (episodes) {
+      for (var i = 0; i < episodes.length; i++) {
+        var ep = episodes[i];
+        if ($scope.showLoadedEpisode (ep)) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    $scope.markShowAsLoaded = function (show) {
+      $http.post ('shows/markShowLoaded', {showId: show._id}).success (function (response) {
+        if (response.status != 'ok') {
+          msg.error (response.message);
+        } else {
+          $scope.loadEpisodes ($scope.selectedShow);
+        }
+      });
+    };
+
+    $scope.markSeasonAsLoaded = function (show, season) {
+      $http.post ('shows/markSeasonLoaded', {showId: show._id, season: season}).success (function (response) {
+        if (response.status != 'ok') {
+          msg.error (response.message);
+        } else {
+          $scope.loadEpisodes ($scope.selectedShow);
+        }
+      });
+    };
 
 
   }]);

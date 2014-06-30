@@ -24,18 +24,27 @@
         </div>
     </div>
     <div class="col-sm-8" ng-show="selectedShow">
+        <div class="row">
+            <div class="col-sm-9">
+                <input type="checkbox" ng-Model="hideLoaded"> Hide "loaded" Episodes
+            </div>
+            <div class="col-sm-3">
+                <a type="button" class="pull-right" ng-click="markShowAsLoaded (selectedShow)">Mark Show as "loaded"</a>
+            </div>
+        </div>
         <div ng-repeat='(season, episodes) in seasons'>
-            <div class="row">
+            <div class="row" ng-show="episodesLeftToShow(episodes)">
                 <div class="col-sm-12">
                     <strong>{{selectedShow.name}} - Season {{season}}:</strong>
+                    <a type="button" class="pull-right" ng-click="markSeasonAsLoaded (selectedShow, season)">Mark Season as "loaded"</a>
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-12 list-group">
-                    <a href="#" ng-repeat="episode in episodes  | orderBy: 'number'" class="list-group-item">
-                        {{episode.number}} - {{episode.name}}
-                        <span title="search" class="glyphicon glyphicon-search pull-right" ng-click="searchEpisode (episode)"></span>
-                        <span title="mark as watched" class="glyphicon glyphicon-unchecked pull-right" ng-click="markAsWatched (episode)"></span>
+                    <a href="#" ng-repeat="episode in episodes  | orderBy: 'number'  | filter: showLoadedEpisode" class="list-group-item">
+                        {{episode.number}} - {{episode.name}} <small>(Air Date: {{episode.airDate}})</small>
+                        <span title="search" class="fa fa-search pull-right" ng-click="searchEpisode (selectedShow, episode)"></span>
+                        <span title="mark as loaded" ng-class="{'fa-square-o': !episode.loaded, 'fa-check-square-o': episode.loaded }" class="fa  pull-right" ng-click="markEpisode (episode)"></span>
                     </a>
                 </div>
             </div>

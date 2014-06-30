@@ -44,6 +44,15 @@ class ShowsHandler extends JSONHandler {
         case "/shows/loadEpisodes":
           loadEpisodes(exchange)
           break
+        case "/shows/saveEpisode":
+          saveEpisode (exchange)
+          break
+        case "/shows/markShowLoaded":
+          markShowLoaded (exchange)
+          break
+        case "/shows/markSeasonLoaded":
+          markSeasonLoaded (exchange)
+          break
 
       }
     } catch (Exception e) {
@@ -92,6 +101,39 @@ class ShowsHandler extends JSONHandler {
 
     showsService.deleteShow(params.data)
 
+    jsonResponse([success: true, status: 'ok'], exchange)
+  }
+
+  private void saveEpisode (HttpExchange exchange) {
+    Map params = parseJsonPost(exchange)
+    def episode = params.data
+    showsService.db.save ('episodes', episode)
+    jsonResponse([success: true, status: 'ok'], exchange)
+  }
+
+  private void markShowLoaded (HttpExchange exchange) {
+    Map params = parseJsonPost(exchange)
+    def seasons = showsService.loadEpisodes(params.showId as String)
+    seasons.each {season, episodes ->
+      episodes.each {episode ->
+        episode.loaded = true
+        showsService.db.save ('episodes', episode)
+      }
+    }
+    jsonResponse([success: true, status: 'ok'], exchange)
+  }
+
+  private void markSeasonLoaded (HttpExchange exchange) {
+    Map params = parseJsonPost(exchange)
+    def seasons = showsService.loadEpisodes(params.showId as String)
+    seasons.each {season, episodes ->
+      if (params.season == season) {
+        episodes.each {episode ->
+          episode.loaded = true
+          showsService.db.save ('episodes', episode)
+        }
+      }
+    }
     jsonResponse([success: true, status: 'ok'], exchange)
   }
 

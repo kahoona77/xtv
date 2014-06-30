@@ -10,7 +10,7 @@ class Episode {
   String  name
   int     season
   int     number
-  boolean watched
+  boolean loaded
   String  airDate
 
   public Episode (Show show, com.omertron.thetvdbapi.model.Episode episode) {
@@ -28,7 +28,7 @@ class Episode {
         'name'     : name,
         'season'   : season,
         'number'   : number,
-        'watched'  : watched,
+        'loaded'   : loaded,
         'airDate'  : airDate,
     ]
   }
