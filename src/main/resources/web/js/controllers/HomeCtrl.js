@@ -6,7 +6,7 @@ angular.module('xtv.controllers').
   controller('HomeCtrl', ['$scope', '$http', 'msg', function($scope, $http, msg) {
 
     $scope.loadServers = function () {
-      $http.get('data/loadServers').success(function(response){
+      $http.get('/data/loadServers').success(function(response){
         if (response.status == 'ok') {
           $scope.servers = response.results;
 
@@ -44,7 +44,7 @@ angular.module('xtv.controllers').
           channels: []
       };
 
-      $http.post ('data/saveServer', {data: newServer}).success (function (response) {
+      $http.post ('/data/saveServer', {data: newServer}).success (function (response) {
         if (response.status = 'ok') {
           $('#addServerDialog').modal('hide');
           $scope.newServer = undefined;
@@ -66,7 +66,7 @@ angular.module('xtv.controllers').
           name: $scope.newChannel.name
         }
       };
-      $http.post ('data/addChannel', {data: data}).success (function (response) {
+      $http.post ('/data/addChannel', {data: data}).success (function (response) {
         if (response.status = 'ok') {
           $('#addChannelDialog').modal('hide');
           $scope.newChannel = undefined;
@@ -83,7 +83,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.deleteServer = function () {
-      $http.post ('data/deleteServer', {data: $scope.serverToDelete}).success (function (response) {
+      $http.post ('/data/deleteServer', {data: $scope.serverToDelete}).success (function (response) {
         if (response.status = 'ok') {
           $scope.selectedServer = undefined;
           $scope.serverToDelete = undefined;
@@ -106,7 +106,7 @@ angular.module('xtv.controllers').
         channelId: $scope.channelToDelete._id
       };
 
-      $http.post ('data/deleteChannel', {data: data}).success (function (response) {
+      $http.post ('/data/deleteChannel', {data: data}).success (function (response) {
         if (response.status = 'ok') {
           $scope.channelToDelete = undefined;
           $scope.loadServers();
@@ -124,7 +124,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.toggleConnection = function (server) {
-      $http.post ('irc/toggleConnection', {data: angular.copy (server)}).success (function (response) {
+      $http.post ('/irc/toggleConnection', {data: angular.copy (server)}).success (function (response) {
         if (response.status = 'ok') {
           server.status = response.result.status;
         } else {
@@ -134,14 +134,14 @@ angular.module('xtv.controllers').
     };
 
     $scope.getServerStatus = function (server) {
-      $http.post ('irc/getServerStatus', {data: angular.copy (server)}).success (function (response) {
+      $http.post ('/irc/getServerStatus', {data: angular.copy (server)}).success (function (response) {
         server.status = response.status;
       });
     };
 
     $scope.loadConsole = function (server) {
       $scope.selectedServerConsole = undefined;
-      $http.post ('irc/getServerConsole', {data: angular.copy (server)}).success (function (response) {
+      $http.post ('/irc/getServerConsole', {data: angular.copy (server)}).success (function (response) {
         $scope.selectedServerConsole = response.console;
       });
     };

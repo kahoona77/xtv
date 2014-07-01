@@ -6,7 +6,7 @@ angular.module('xtv.controllers').
   controller('ShowsCtrl', ['$scope', 'msg', '$http', '$location', function($scope, msg, $http, $location) {
 
     $scope.loadShows = function () {
-      $http.get('shows/load').success(function(response){
+      $http.get('/shows/load').success(function(response){
         if (response.status == 'ok') {
           $scope.shows = response.results;
 
@@ -36,7 +36,7 @@ angular.module('xtv.controllers').
 
     $scope.loadEpisodes = function (show) {
      $scope.seasons = undefined;
-     $http.get('shows/loadEpisodes', {params : {showId: show._id}}).success(function(response){
+     $http.get('/shows/loadEpisodes', {params : {showId: show._id}}).success(function(response){
         if (response.status == 'ok') {
           $scope.seasons = response.data;
         } else {
@@ -79,7 +79,7 @@ angular.module('xtv.controllers').
     //search
     $scope.searchShow = function () {
 
-      $http.get('shows/search', {params : {query: $scope.query}}).success(function(response){
+      $http.get('/shows/search', {params : {query: $scope.query}}).success(function(response){
         if (response.status == 'ok') {
           $scope.searchResults = response.results;
         } else {
@@ -89,7 +89,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.addShow = function (show) {
-      $http.post ('shows/add', {data: show}).success (function (response) {
+      $http.post ('/shows/add', {data: show}).success (function (response) {
         if (response.status = 'ok') {
           $('#addShowDialog').modal('hide');
           $scope.query = undefined;
@@ -102,7 +102,7 @@ angular.module('xtv.controllers').
 
     $scope.markEpisode = function (episode) {
       episode.loaded = !episode.loaded;
-      $http.post ('shows/saveEpisode', {data: episode}).success (function (response) {
+      $http.post ('/shows/saveEpisode', {data: episode}).success (function (response) {
         if (response.status != 'ok') {
           msg.error (response.message);
         }
@@ -133,7 +133,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.markShowAsLoaded = function (show) {
-      $http.post ('shows/markShowLoaded', {showId: show._id}).success (function (response) {
+      $http.post ('/shows/markShowLoaded', {showId: show._id}).success (function (response) {
         if (response.status != 'ok') {
           msg.error (response.message);
         } else {
@@ -143,7 +143,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.markSeasonAsLoaded = function (show, season) {
-      $http.post ('shows/markSeasonLoaded', {showId: show._id, season: season}).success (function (response) {
+      $http.post ('/shows/markSeasonLoaded', {showId: show._id, season: season}).success (function (response) {
         if (response.status != 'ok') {
           msg.error (response.message);
         } else {
