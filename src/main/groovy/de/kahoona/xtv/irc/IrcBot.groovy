@@ -93,8 +93,10 @@ class IrcBot extends ListenerAdapter implements Runnable {
     this.consoleIndex = 0
 
     logToConsole "DISCONNECT from ${server.name}"
+    // wait 10 seconds
+    Thread.sleep(10000)
 
-    if (automaticReconnect && this.isConnected ()) {
+    if (automaticReconnect && !this.isConnected ()) {
       this.connect ()
     }
   }
