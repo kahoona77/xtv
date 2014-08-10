@@ -6,7 +6,7 @@ angular.module('xtv.controllers').
   controller('SettingsCtrl', ['$scope', '$http', function($scope, $http) {
 
     $scope.loadSettings = function () {
-      $http.get('data/loadSettings').success(function (response) {
+      $http.get('/data/loadSettings').success(function (response) {
         if (response.status == 'ok') {
           $scope.settings = response.result;
 
@@ -18,7 +18,7 @@ angular.module('xtv.controllers').
     $scope.loadSettings();
 
     $scope.saveSettings = function () {
-      $http.post('data/saveSettings', {data: $scope.settings}).success(function (response) {
+      $http.post('/data/saveSettings', {data: $scope.settings}).success(function (response) {
         if (response.status = 'ok') {
           $scope.hideSettingsDialog();
           $scope.loadSettings();

@@ -8,7 +8,7 @@ angular.module('xtv.controllers').
     $scope.downloads = [];
 
     $scope.loadDownloads = function () {
-        $http.get('downloads/listDownloads',{params: { 'nocache': new Date().getTime() }}).success(function(response){
+        $http.get('/downloads/listDownloads',{params: { 'nocache': new Date().getTime() }}).success(function(response){
             if (response.status == 'ok') {
                 $scope.downloads = response.results;
             } else {
@@ -37,7 +37,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.stop = function () {
-        $http.post('downloads/stopDownload', {data: $scope.selectedItem}).success(function(response){
+        $http.post('/downloads/stopDownload', {data: $scope.selectedItem}).success(function(response){
             if (response.status == 'ok') {
                 $scope.selectedItem = undefined;
                 $scope.loadDownloads();
@@ -48,7 +48,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.resume = function () {
-        $http.post('downloads/resumeDownload', {data: $scope.selectedItem}).success(function(response){
+        $http.post('/downloads/resumeDownload', {data: $scope.selectedItem}).success(function(response){
             if (response.status == 'ok') {
                 $scope.selectedItem = undefined;
                 $scope.loadDownloads();
@@ -63,7 +63,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.cancel = function () {
-        $http.post('downloads/cancelDownload', {data: $scope.selectedItem}).success(function(response){
+        $http.post('/downloads/cancelDownload', {data: $scope.selectedItem}).success(function(response){
             if (response.status == 'ok') {
                 $scope.selectedItem = undefined;
                 $scope.loadDownloads();
@@ -82,7 +82,7 @@ angular.module('xtv.controllers').
       });
 
       angular.forEach (completed, function (item) {
-         $http.post('downloads/cancelDownload', {data: item}).success(function(response){
+         $http.post('/downloads/cancelDownload', {data: item}).success(function(response){
               if (response.status == 'ok') {
                   $scope.selectedItem = undefined;
                   $scope.loadDownloads();

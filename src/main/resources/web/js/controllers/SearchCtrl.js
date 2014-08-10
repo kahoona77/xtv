@@ -10,7 +10,7 @@ angular.module('xtv.controllers').
     $scope.searchResults = undefined;
 
     $scope.search = function () {
-      $http.get('packets/findPackets', {params : {query: $scope.query}}).success(function(response){
+      $http.get('/packets/findPackets', {params : {query: $scope.query}}).success(function(response){
         if (response.status == 'ok') {
           $scope.searchResults = response.results;
         } else {
@@ -20,7 +20,7 @@ angular.module('xtv.controllers').
     };
 
     $scope.countPackets = function () {
-      $http.get('packets/countPackets').success(function(response){
+      $http.get('/packets/countPackets').success(function(response){
         if (response.status == 'ok') {
           $scope.packetCount = response.count;
         } else {
@@ -31,7 +31,7 @@ angular.module('xtv.controllers').
     $scope.countPackets();
 
     $scope.startDownload = function (item) {
-      $http.post('downloads/downloadPacket', {data: item}).success(function(response){
+      $http.post('/downloads/downloadPacket', {data: item}).success(function(response){
         if (response.status == 'ok') {
           msg.show ("Added '" + item.name + "' to Download-Queue.");
         } else {
